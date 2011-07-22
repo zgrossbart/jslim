@@ -1,0 +1,22 @@
+defaultTasks "clean", "build"
+
+apply plugin: 'java'
+
+/*
+ * Now we define our application
+ */
+group = 'JSlim'
+version = '0.1-SNAPSHOT'
+
+/*
+ * We specify our dependencies
+ */
+dependencies {
+  compile files('../tmp/closure-compiler/build/compiler.jar')
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.grossbart.jslim.JSlim'
+    }
+}
