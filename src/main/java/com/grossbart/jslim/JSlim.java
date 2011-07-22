@@ -1,5 +1,6 @@
 package com.grossbart.jslim;
 
+import com.google.javascript.rhino.Node;
 import com.google.javascript.jscomp.CompilationLevel;
 import com.google.javascript.jscomp.Compiler;
 import com.google.javascript.jscomp.CompilerOptions;
@@ -21,15 +22,20 @@ public class JSlim {
 
     // To get the complete set of externs, the logic in
     // CompilerRunner.getDefaultExterns() should be used here.
-    JSSourceFile extern = JSSourceFile.fromCode("externs.js",
-        "function alert(x) {}");
+    JSSourceFile extern[] = {JSSourceFile.fromCode("externs.js", "function alert(x) {}")};
 
     // The dummy input name "input.js" is used here so that any warnings or
     // errors will cite line numbers in terms of input.js.
-    JSSourceFile input = JSSourceFile.fromCode("input.js", code);
+    JSSourceFile input[] = {JSSourceFile.fromCode("input.js", code)};
 
-    // compile() returns a Result, but it is not needed here.
-    compiler.compile(extern, input, options);
+    compiler.init(extern, input, options);
+    
+    compiler.parse();
+    
+    Node node = compiler.getRoot();
+    System.out.println("node.toString(): " + node.toString());
+    System.out.println("node.getFirstChild(): " + node.getFirstChild());
+    System.out.println("node.getFirstChild().getQualifiedName(): " + node.getFirstChild().getQualifiedName());
 
     // The compiler is responsible for generating the compiled code; it is not
     // accessible via the Result.
