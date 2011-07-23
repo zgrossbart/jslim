@@ -38,25 +38,39 @@ public class JSlim {
         Node node = compiler.getRoot();
         //System.out.println("node.toString(): \n" + node.toStringTree());
         
-        findFunctions(node);
-
+        System.out.println("node before change: " + compiler.toSource());
+        
+        Node n = findFunctions(node);
+        //System.out.println("n: " + n.toStringTree());
+        
+        //System.out.println("n.toString(): \n" + n.toStringTree());
+        
         // The compiler is responsible for generating the compiled code; it is not
         // accessible via the Result.
         return compiler.toSource();
     }
     
-    private static void findFunctions(Node node) {
+    private static Node findFunctions(Node node) {
         Iterator<Node> nodes = node.children().iterator();
         
         while (nodes.hasNext()) {
             Node n = nodes.next();
-            if (n.getType() == Token.FUNCTION) {
-                System.out.println("n.toString(): " + n.toStringTree());
-                System.out.println("n.getFirstChild().getString(): " + n.getFirstChild().getString());
+            //System.out.println("n.getType(): " + n.getType());
+            if (n.getType() == Token.CALL && n.getFirstChild().getType() == Token.NAME &&
+                n.getFirstChild().getString().equals("alert")) {
+                //System.out.println("n.toString(): " + n.toStringTree());
+                
+                //System.out.println("removing child...");
+                n.getParent().detachFromParent();
+                //System.out.println("Found the call: " + n.toStringTree());
+                //n.getParent().removeChild(n);
+                return n;
             }
             
             findFunctions(n);
         }
+        
+        return node;
     }
 
     public static void main(String[] args) {
