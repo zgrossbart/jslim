@@ -1,6 +1,9 @@
 package com.grossbart.jslim;
 
+import java.io.File;
 import java.util.Iterator;
+
+import org.apache.commons.io.FileUtils;
 
 import com.google.javascript.jscomp.CompilationLevel;
 import com.google.javascript.jscomp.Compiler;
@@ -36,7 +39,7 @@ public class JSlim {
         compiler.parse();
 
         Node node = compiler.getRoot();
-        //System.out.println("node.toString(): \n" + node.toStringTree());
+        System.out.println("node.toString(): \n" + node.toStringTree());
         
         System.out.println("node before change: " + compiler.toSource());
         
@@ -67,6 +70,11 @@ public class JSlim {
                 return n;
             }
             
+            if (n.getType() == Token.CALL && n.getFirstChild().getType() == Token.GETPROP) {
+                System.out.println("Found a function call to " + n.getFirstChild().getLastChild().getString() + 
+                                   " on variable " + n.getParent().getFirstChild().getString());
+            }
+            
             findFunctions(n);
         }
         
@@ -74,18 +82,12 @@ public class JSlim {
     }
 
     public static void main(String[] args) {
-        /*String compiledCode = compile(
-            "function hello(name) {" +
-              "alert('Hello, ' + name);" +
-            "}" +
-            "hello('New user');");*/
-
-        String compiledCode = compile(
-            "var foo = 'foo string';" +
-            "foo = foo.substring(1);" +  
-            "alert('foo: ' + foo);");
-        System.out.println(compiledCode);
+        try {
+            String mainJS = FileUtils.readFileToString(new File("main.js"), "UTF-8");
+            System.out.println(compile(mainJS));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-
 }
 
