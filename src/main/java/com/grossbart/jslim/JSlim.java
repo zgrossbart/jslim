@@ -1,6 +1,7 @@
 package com.grossbart.jslim;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.commons.io.FileUtils;
@@ -18,7 +19,7 @@ public class JSlim {
      * @param code JavaScript source code to compile.
      * @return The compiled version of the code.
      */
-    public static String compile(String code) {
+    public String slim(String code) {
         Compiler compiler = new Compiler();
 
         CompilerOptions options = new CompilerOptions();
@@ -39,11 +40,11 @@ public class JSlim {
         compiler.parse();
 
         Node node = compiler.getRoot();
-        System.out.println("node.toString(): \n" + node.toStringTree());
+        //System.out.println("node.toString(): \n" + node.toStringTree());
         
-        System.out.println("node before change: " + compiler.toSource());
+        //System.out.println("node before change: " + compiler.toSource());
         
-        Node n = findFunctions(node);
+        Node n = process(node);
         //System.out.println("n: " + n.toStringTree());
         
         //System.out.println("n.toString(): \n" + n.toStringTree());
@@ -53,11 +54,12 @@ public class JSlim {
         return compiler.toSource();
     }
     
-    private static Node findFunctions(Node node) {
+    private Node process(Node node) {
         Iterator<Node> nodes = node.children().iterator();
         
         while (nodes.hasNext()) {
             Node n = nodes.next();
+            /*
             //System.out.println("n.getType(): " + n.getType());
             if (n.getType() == Token.CALL && n.getFirstChild().getType() == Token.NAME &&
                 n.getFirstChild().getString().equals("alert")) {
@@ -74,17 +76,43 @@ public class JSlim {
                 System.out.println("Found a function call to " + n.getFirstChild().getLastChild().getString() + 
                                    " on variable " + n.getParent().getFirstChild().getString());
             }
+            */
             
-            findFunctions(n);
+            if (n.getType() == Token.BLOCK) {
+                block(n);
+            }
+            
+            process(n);
         }
         
         return node;
+    }
+    
+    private Node block(Node block) {
+        assert block.getType() == Token.BLOCK;
+        
+        ArrayList<Node> vars = new ArrayList<Node>();
+        
+        Iterator<Node> nodes = block.children().iterator();
+        
+        while (nodes.hasNext()) {
+            Node n = nodes.next();
+            if (n.getType() == Token.VAR && n.getFirstChild().getType() == Token.NAME) {
+                vars.add(n);
+            }
+        }
+        
+        for (Node n : vars) {
+            System.out.println("n: " + n.getFirstChild().getString());
+        }
+        
+        return block;
     }
 
     public static void main(String[] args) {
         try {
             String mainJS = FileUtils.readFileToString(new File("main.js"), "UTF-8");
-            System.out.println(compile(mainJS));
+            System.out.println(new JSlim().slim(mainJS));
         } catch (Exception e) {
             e.printStackTrace();
         }
