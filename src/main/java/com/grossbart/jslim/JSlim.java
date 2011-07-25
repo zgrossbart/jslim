@@ -61,6 +61,7 @@ public class JSlim {
     private class Struct {
         private ArrayList<Node> m_vars = new ArrayList<Node>();
         private ArrayList<Node> m_calls = new ArrayList<Node>();
+        private ArrayList<Node> m_funcs = new ArrayList<Node>();
     }
     
     private Node process(Node node) {
@@ -97,6 +98,8 @@ public class JSlim {
                 m_stack.peek().m_calls.add(n);
             } else if (n.getType() == Token.CALL && n.getFirstChild().getType() == Token.NAME) {
                 m_stack.peek().m_calls.add(n);
+            } else if (n.getType() == Token.FUNCTION) {
+                m_stack.peek().m_funcs.add(n);
             }
             
             process(n);
@@ -126,6 +129,25 @@ public class JSlim {
                 } else if (n.getFirstChild().getType() == Token.NAME) {
                     Node name = n.getFirstChild();
                     System.out.println(name.getString() + "()");
+                }
+            }
+            
+            if (s.m_funcs.size() > 0) {
+                System.out.println("\nFunctions:");
+            }
+            for (Node n : s.m_funcs) {
+                if (n.getParent().getType() == Token.STRING) {
+                    /*
+                     This is a closure style function like this:
+                         myFunc: function()
+                     */
+                    System.out.println(n.getParent().getString() + ": function()");
+                } else {
+                    /*
+                     This is a standard type of function like this:
+                        function myFunc()
+                     */
+                    System.out.println("function " + n.getFirstChild().getString() + "()");
                 }
             }
         }
