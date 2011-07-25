@@ -3,6 +3,7 @@ package com.grossbart.jslim;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 import org.apache.commons.io.FileUtils;
 
@@ -15,6 +16,7 @@ import com.google.javascript.rhino.Token;
 
 public class JSlim {
 
+    private LinkedList<Struct> m_stack = new LinkedList<Struct>();
     /**
      * @param code JavaScript source code to compile.
      * @return The compiled version of the code.
@@ -29,7 +31,7 @@ public class JSlim {
 
         // To get the complete set of externs, the logic in
         // CompilerRunner.getDefaultExterns() should be used here.
-        JSSourceFile extern[] = {JSSourceFile.fromCode("externs.js", "function alert(x) {}")};
+        JSSourceFile extern[] = {JSSourceFile.fromCode("externs.js", "")};
 
         // The dummy input name "input.js" is used here so that any warnings or
         // errors will cite line numbers in terms of input.js.
@@ -45,6 +47,8 @@ public class JSlim {
         //System.out.println("node before change: " + compiler.toSource());
         
         Node n = process(node);
+        
+        printStack();
         //System.out.println("n: " + n.toStringTree());
         
         //System.out.println("n.toString(): \n" + n.toStringTree());
@@ -52,6 +56,11 @@ public class JSlim {
         // The compiler is responsible for generating the compiled code; it is not
         // accessible via the Result.
         return compiler.toSource();
+    }
+    
+    private class Struct {
+        private ArrayList<Node> m_vars = new ArrayList<Node>();
+        private ArrayList<Node> m_calls = new ArrayList<Node>();
     }
     
     private Node process(Node node) {
@@ -82,29 +91,66 @@ public class JSlim {
                 block(n);
             }
             
+            if (n.getType() == Token.VAR && n.getFirstChild().getType() == Token.NAME) {
+                m_stack.peek().m_vars.add(n);
+            } else if (n.getType() == Token.CALL && n.getFirstChild().getType() == Token.GETPROP) {
+                m_stack.peek().m_calls.add(n);
+            } else if (n.getType() == Token.CALL && n.getFirstChild().getType() == Token.NAME) {
+                m_stack.peek().m_calls.add(n);
+            }
+            
             process(n);
         }
         
         return node;
     }
     
+    private void printStack() {
+        while (m_stack.size() > 0) {
+            Struct s = m_stack.pop();
+            
+            if (s.m_vars.size() > 0) {
+                System.out.println("Variables:");
+            }
+            for (Node n : s.m_vars) {
+                System.out.println("n: " + n.getFirstChild().getString());
+            }
+            
+            if (s.m_calls.size() > 0) {
+                System.out.println("\nCalls:");
+            }
+            for (Node n : s.m_calls) {
+                if (n.getFirstChild().getType() == Token.GETPROP) {
+                    Node name = n.getFirstChild().getFirstChild();
+                    System.out.println(name.getString() + "." + name.getNext().getString() + "()");
+                } else if (n.getFirstChild().getType() == Token.NAME) {
+                    Node name = n.getFirstChild();
+                    System.out.println(name.getString() + "()");
+                }
+            }
+        }
+    }
+    
     private Node block(Node block) {
         assert block.getType() == Token.BLOCK;
         
-        ArrayList<Node> vars = new ArrayList<Node>();
+        m_stack.push(new Struct());
         
-        Iterator<Node> nodes = block.children().iterator();
-        
-        while (nodes.hasNext()) {
-            Node n = nodes.next();
-            if (n.getType() == Token.VAR && n.getFirstChild().getType() == Token.NAME) {
-                vars.add(n);
-            }
+        /*
+        if (vars.size() > 0) {
+            System.out.println("Variables:");
         }
-        
         for (Node n : vars) {
             System.out.println("n: " + n.getFirstChild().getString());
         }
+        
+        if (calls.size() > 0) {
+            System.out.println("\nCalls:");
+        }
+        for (Node n : calls) {
+            System.out.println("n: " + n.getFirstChild().getString());
+        }
+        */
         
         return block;
     }
@@ -112,7 +158,7 @@ public class JSlim {
     public static void main(String[] args) {
         try {
             String mainJS = FileUtils.readFileToString(new File("main.js"), "UTF-8");
-            System.out.println(new JSlim().slim(mainJS));
+            new JSlim().slim(mainJS);
         } catch (Exception e) {
             e.printStackTrace();
         }
