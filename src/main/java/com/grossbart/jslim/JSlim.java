@@ -19,12 +19,16 @@ public class JSlim {
     private ArrayList<String> m_calls = new ArrayList<String>();
     private ArrayList<Node> m_funcs = new ArrayList<Node>();
     
+    public String addLib(String code)
+    {
+        return slim(code, true);
+    }
     
     /**
      * @param code JavaScript source code to compile.
      * @return The compiled version of the code.
      */
-    public String slim(String code) {
+    public String slim(String code, boolean isLib) {
         Compiler compiler = new Compiler();
 
         CompilerOptions options = new CompilerOptions();
@@ -49,9 +53,11 @@ public class JSlim {
         
         //System.out.println("node before change: " + compiler.toSource());
         
-        Node n = process(node);
+        Node n = process(node, isLib);
         
-        printStack();
+        if (isLib) {
+            printStack();
+        }
         //System.out.println("n: " + n.toStringTree());
         
         //System.out.println("n.toString(): \n" + n.toStringTree());
@@ -61,7 +67,7 @@ public class JSlim {
         return compiler.toSource();
     }
     
-    private Node process(Node node) {
+    private Node process(Node node, boolean isLib) {
         Iterator<Node> nodes = node.children().iterator();
         
         while (nodes.hasNext()) {
@@ -99,11 +105,11 @@ public class JSlim {
                     Node name = n.getFirstChild();
                     m_calls.add(name.getString());
                 }
-            } else if (n.getType() == Token.FUNCTION) {
+            } else if (isLib && n.getType() == Token.FUNCTION) {
                 m_funcs.add(n);
             }
             
-            process(n);
+            process(n, isLib);
         }
         
         return node;
@@ -159,8 +165,13 @@ public class JSlim {
 
     public static void main(String[] args) {
         try {
+            JSlim slim = new JSlim ();
+            
             String mainJS = FileUtils.readFileToString(new File("main.js"), "UTF-8");
-            System.out.println("compiled code: " + new JSlim().slim(mainJS));
+            slim.slim(mainJS, false);
+            
+            String libJS = FileUtils.readFileToString(new File("lib.js"), "UTF-8");
+            System.out.println("compiled code: " + slim.addLib(libJS));
         } catch (Exception e) {
             e.printStackTrace();
         }
