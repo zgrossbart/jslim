@@ -16,11 +16,11 @@ function doSomething() {
     /*
      * I'm a block comment
      */
-    var foo = 'foo string';
-    foo = foo.substring(1);
+    var myVar = 'foo string';
+    myVar = myVar.substring(1);
     
     var bar = 'bar string';
-    alert('foo: ' + foo);
+    alert('foo: ' + myVar);
     
     obj1.func1();
 }

@@ -3,7 +3,6 @@ package com.grossbart.jslim;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 
 import org.apache.commons.io.FileUtils;
 
@@ -16,7 +15,11 @@ import com.google.javascript.rhino.Token;
 
 public class JSlim {
 
-    private LinkedList<Struct> m_stack = new LinkedList<Struct>();
+    private ArrayList<Node> m_vars = new ArrayList<Node>();
+    private ArrayList<String> m_calls = new ArrayList<String>();
+    private ArrayList<Node> m_funcs = new ArrayList<Node>();
+    
+    
     /**
      * @param code JavaScript source code to compile.
      * @return The compiled version of the code.
@@ -58,12 +61,6 @@ public class JSlim {
         return compiler.toSource();
     }
     
-    private class Struct {
-        private ArrayList<Node> m_vars = new ArrayList<Node>();
-        private ArrayList<Node> m_calls = new ArrayList<Node>();
-        private ArrayList<Node> m_funcs = new ArrayList<Node>();
-    }
-    
     private Node process(Node node) {
         Iterator<Node> nodes = node.children().iterator();
         
@@ -93,13 +90,17 @@ public class JSlim {
             }
             
             if (n.getType() == Token.VAR && n.getFirstChild().getType() == Token.NAME) {
-                m_stack.peek().m_vars.add(n);
-            } else if (n.getType() == Token.CALL && n.getFirstChild().getType() == Token.GETPROP) {
-                m_stack.peek().m_calls.add(n);
-            } else if (n.getType() == Token.CALL && n.getFirstChild().getType() == Token.NAME) {
-                m_stack.peek().m_calls.add(n);
+                m_vars.add(n);
+            } else if (n.getType() == Token.CALL) {
+                if (n.getFirstChild().getType() == Token.GETPROP) {
+                    Node name = n.getFirstChild().getFirstChild();
+                    m_calls.add(name.getNext().getString());
+                } else if (n.getFirstChild().getType() == Token.NAME) {
+                    Node name = n.getFirstChild();
+                    m_calls.add(name.getString());
+                }
             } else if (n.getType() == Token.FUNCTION) {
-                m_stack.peek().m_funcs.add(n);
+                m_funcs.add(n);
             }
             
             process(n);
@@ -109,45 +110,24 @@ public class JSlim {
     }
     
     private void printStack() {
-        while (m_stack.size() > 0) {
-            Struct s = m_stack.pop();
-            
-            if (s.m_vars.size() > 0) {
-                System.out.println("Variables:");
-            }
-            for (Node n : s.m_vars) {
-                System.out.println("n: " + n.getFirstChild().getString());
-            }
-            
-            if (s.m_calls.size() > 0) {
-                System.out.println("\nCalls:");
-            }
-            for (Node n : s.m_calls) {
-                if (n.getFirstChild().getType() == Token.GETPROP) {
-                    Node name = n.getFirstChild().getFirstChild();
-                    System.out.println(name.getString() + "." + name.getNext().getString() + "()");
-                } else if (n.getFirstChild().getType() == Token.NAME) {
-                    Node name = n.getFirstChild();
-                    System.out.println(name.getString() + "()");
+        for (Node n : m_funcs) {
+            if (n.getParent().getType() == Token.STRING) {
+                /*
+                 This is a closure style function like this:
+                     myFunc: function()
+                 */
+                if (!m_calls.contains(n.getParent().getString())) {
+                    System.out.println("Removing function: " + n.getParent().getString());
+                    n.getParent().detachFromParent();
                 }
-            }
-            
-            if (s.m_funcs.size() > 0) {
-                System.out.println("\nFunctions:");
-            }
-            for (Node n : s.m_funcs) {
-                if (n.getParent().getType() == Token.STRING) {
-                    /*
-                     This is a closure style function like this:
-                         myFunc: function()
-                     */
-                    System.out.println(n.getParent().getString() + ": function()");
-                } else {
-                    /*
-                     This is a standard type of function like this:
-                        function myFunc()
-                     */
-                    System.out.println("function " + n.getFirstChild().getString() + "()");
+            } else {
+                /*
+                 This is a standard type of function like this:
+                    function myFunc()
+                 */
+                if (!m_calls.contains(n.getFirstChild().getString())) {
+                    System.out.println("Removing function: " + n.getFirstChild().getString());
+                    n.getParent().detachFromParent();
                 }
             }
         }
@@ -156,7 +136,7 @@ public class JSlim {
     private Node block(Node block) {
         assert block.getType() == Token.BLOCK;
         
-        m_stack.push(new Struct());
+        //m_stack.push(new Struct());
         
         /*
         if (vars.size() > 0) {
@@ -180,7 +160,7 @@ public class JSlim {
     public static void main(String[] args) {
         try {
             String mainJS = FileUtils.readFileToString(new File("main.js"), "UTF-8");
-            new JSlim().slim(mainJS);
+            System.out.println("compiled code: " + new JSlim().slim(mainJS));
         } catch (Exception e) {
             e.printStackTrace();
         }
