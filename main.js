@@ -12,3 +12,7 @@ function doSomething() {
 }
 
 obj1.func3();
+
+jQuery(document).ready(function() {
+    myObj.init();
+});

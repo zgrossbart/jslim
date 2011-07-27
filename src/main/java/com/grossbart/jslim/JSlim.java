@@ -106,7 +106,18 @@ public class JSlim {
                     m_calls.add(name.getString());
                 }
             } else if (isLib && n.getType() == Token.FUNCTION) {
-                m_funcs.add(n);
+                /*
+                 We need to check to make sure this is a named
+                 function.  If it is an anonymous function then
+                 it can't be called directly outside of scope and
+                 it is being called locally so we can't remove it.
+                 */
+                if (n.getParent().getType() == Token.STRING ||
+                    (n.getFirstChild().getType() == Token.NAME &&
+                     n.getFirstChild().getString() != null &&
+                     n.getFirstChild().getString().length() > 0)) {
+                    m_funcs.add(n);
+                }
             }
             
             process(n, isLib);

@@ -9,5 +9,15 @@ obj1 = {
     
     func3: function() {
         alert("I'm func 3");
+    },
+    
+    func4: function() {
+        alert("I'm func 4");
+    },
+    
+    init: function() {
+        (function(window) {
+            obj1.func4();
+        }(window));
     }
 }
