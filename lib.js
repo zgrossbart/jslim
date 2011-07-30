@@ -1,3 +1,7 @@
+function mainFunc() {
+    alert("I'm the main function");
+}
+
 obj1 = {
     func1: function() {
         alert("I'm func 1");

@@ -91,9 +91,9 @@ public class JSlim {
             }
             */
             
-            if (n.getType() == Token.BLOCK) {
+            /*if (n.getType() == Token.BLOCK) {
                 block(n);
-            }
+            }*/
             
             if (n.getType() == Token.VAR && n.getFirstChild().getType() == Token.NAME) {
                 m_vars.add(n);
@@ -143,8 +143,9 @@ public class JSlim {
                     function myFunc()
                  */
                 if (!m_calls.contains(n.getFirstChild().getString())) {
+                    System.out.println("n.toStringTree(): " + n.toStringTree());
                     System.out.println("Removing function: " + n.getFirstChild().getString());
-                    n.getParent().detachFromParent();
+                    n.detachFromParent();
                 }
             }
         }
@@ -181,6 +182,7 @@ public class JSlim {
             String mainJS = FileUtils.readFileToString(new File("main.js"), "UTF-8");
             slim.slim(mainJS, false);
             
+            //String libJS = FileUtils.readFileToString(new File("jquery-1.6.2.js"), "UTF-8");
             String libJS = FileUtils.readFileToString(new File("lib.js"), "UTF-8");
             System.out.println("compiled code: " + slim.addLib(libJS));
         } catch (Exception e) {
