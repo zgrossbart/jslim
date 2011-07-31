@@ -4,7 +4,7 @@ function mainFunc() {
 
 obj1 = {
     func1: function() {
-        alert("I'm func 1");
+        alert("I'm func 1 callback");
     },
     
     func2: function() {

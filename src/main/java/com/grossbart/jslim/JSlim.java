@@ -149,6 +149,10 @@ public class JSlim {
         } else if (getProp.getFirstChild().getType() == Token.GETPROP) {
             addCallsProp(getProp.getFirstChild());
         }
+        
+        if (getProp.getNext() != null && getProp.getNext().getType() == Token.GETPROP) {
+            addCallsProp(getProp.getNext());
+        }
     }
     
     private void addCalls(Node call)
