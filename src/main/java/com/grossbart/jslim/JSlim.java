@@ -103,6 +103,22 @@ public class JSlim {
                 m_vars.add(n);
             } else if (n.getType() == Token.CALL || n.getType() == Token.NEW) {
                 addCalls(n);
+            } else if (n.getType() == Token.ASSIGN ||
+                       n.getType() == Token.ASSIGN_BITOR  ||
+                       n.getType() == Token.ASSIGN_BITXOR ||
+                       n.getType() == Token.ASSIGN_BITAND ||
+                       n.getType() == Token.ASSIGN_LSH ||
+                       n.getType() == Token.ASSIGN_RSH ||
+                       n.getType() == Token.ASSIGN_URSH ||
+                       n.getType() == Token.ASSIGN_ADD ||
+                       n.getType() == Token.ASSIGN_SUB ||
+                       n.getType() == Token.ASSIGN_MUL ||
+                       n.getType() == Token.ASSIGN_DIV ||
+                       n.getType() == Token.ASSIGN_MOD) {
+                /*
+                 This is an assignment operator.  
+                 */
+                addAssign(n);
             } else if (isLib && n.getType() == Token.FUNCTION) {
                 /*
                  We need to check to make sure this is a named
@@ -122,6 +138,27 @@ public class JSlim {
         }
         
         return node;
+    }
+    
+    private void addAssign(Node assign)
+    {
+        if (assign.getChildCount() < 2) {
+            /*
+             This means it was a simple assignment to a constant value
+             like var a = "foo" or var b = 5
+             */
+            return;
+        }
+        
+        if (assign.getLastChild().getType() == Token.NAME) {
+            /*
+             This means it was assignment to a variable and since all
+             variable names might be functions we need to add them to
+             our calls list.
+             */
+            
+            addCall(assign.getLastChild().getString());
+        }
     }
     
     private void addCall(String call)
