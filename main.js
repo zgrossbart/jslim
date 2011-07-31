@@ -1,7 +1,7 @@
 
 
 jQuery(document).ready(function() {
-    return new jQuery.fn.foo.bar.init( selector, context, rootjQuery );
+    /*return new jQuery.fn.foo.bar.init( selector, context, rootjQuery );
     
     a = var1;
     var b = "var2";
@@ -13,7 +13,7 @@ jQuery(document).ready(function() {
     
     var f = obj1.func2;
     
-    obj1.func3(obj1.func1);
+    obj1.func3(obj1.func1);*/
     
     $('#output').append('It works!');
 });
