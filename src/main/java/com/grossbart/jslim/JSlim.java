@@ -33,8 +33,7 @@ public class JSlim {
 
         CompilerOptions options = new CompilerOptions();
         // Advanced mode is used here, but additional options could be set, too.
-        CompilationLevel.ADVANCED_OPTIMIZATIONS.setOptionsForCompilationLevel(
-                                                                             options);
+        CompilationLevel.SIMPLE_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
 
         // To get the complete set of externs, the logic in
         // CompilerRunner.getDefaultExterns() should be used here.
@@ -266,6 +265,29 @@ public class JSlim {
         
         return block;
     }
+    
+    public static String plainCompile(String code) {
+        Compiler compiler = new Compiler();
+        
+        CompilerOptions options = new CompilerOptions();
+        // Advanced mode is used here, but additional options could be set, too.
+        CompilationLevel.SIMPLE_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
+        
+        // To get the complete set of externs, the logic in
+        // CompilerRunner.getDefaultExterns() should be used here.
+        JSSourceFile extern = JSSourceFile.fromCode("externs.js", "function alert(x) {}");
+        
+        // The dummy input name "input.js" is used here so that any warnings or
+        // errors will cite line numbers in terms of input.js.
+        JSSourceFile input = JSSourceFile.fromCode("input.js", code);
+    
+        // compile() returns a Result, but it is not needed here.
+        compiler.compile(extern, input, options);
+    
+        // The compiler is responsible for generating the compiled code; it is not
+        // accessible via the Result.
+        return compiler.toSource();
+    }
 
     public static void main(String[] args) {
         try {
@@ -274,11 +296,13 @@ public class JSlim {
             String mainJS = FileUtils.readFileToString(new File("main.js"), "UTF-8");
             slim.slim(mainJS, false);
             
-            String libJS = FileUtils.readFileToString(new File("jquery.min.js"), "UTF-8");
+            String libJS = FileUtils.readFileToString(new File("jquery-ui-1.8.14.custom.min.js"), "UTF-8");
+            //String libJS = FileUtils.readFileToString(new File("jquery.min.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("lib.js"), "UTF-8");
-            System.out.println("compiled code: " + slim.addLib(libJS));
+            //System.out.println("compiled code: " + slim.addLib(libJS));
             
             FileUtils.writeStringToFile(new File("out.js"), slim.addLib(libJS));
+            //FileUtils.writeStringToFile(new File("out.js"), plainCompile(libJS));
         } catch (Exception e) {
             e.printStackTrace();
         }

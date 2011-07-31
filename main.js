@@ -16,4 +16,6 @@ jQuery(document).ready(function() {
     obj1.func3(obj1.func1);*/
     
     $('#output').append('It works!');
+    
+    $('#dialog').dialog();
 });
