@@ -129,7 +129,16 @@ public class JSlim {
                     (n.getFirstChild().getType() == Token.NAME &&
                      n.getFirstChild().getString() != null &&
                      n.getFirstChild().getString().length() > 0)) {
-                    m_funcs.add(n);
+                    
+                    /*
+                     If this function is part of an object list that means
+                     it is named and getting passed to a function and most
+                     likely getting called without a direct function reference
+                     so we have to leave it there.
+                     */
+                    if (n.getParent().getParent().getType() != Token.OBJECTLIT) {
+                        m_funcs.add(n);
+                    }
                 }
             }
             
