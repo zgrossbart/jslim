@@ -49,11 +49,15 @@ public class JSlim {
         compiler.parse();
 
         Node node = compiler.getRoot();
-        //System.out.println("node.toString(): \n" + node.toStringTree());
+        System.out.println("node.toString(): \n" + node.toStringTree());
         
         //System.out.println("node before change: " + compiler.toSource());
         
+        System.out.println("starting process...");
         Node n = process(node, isLib);
+        
+        System.out.println("Done processing...");
+        System.out.println("m_calls: " + m_calls);
         
         if (isLib) {
             printStack();
@@ -97,14 +101,8 @@ public class JSlim {
             
             if (n.getType() == Token.VAR && n.getFirstChild().getType() == Token.NAME) {
                 m_vars.add(n);
-            } else if (n.getType() == Token.CALL) {
-                if (n.getFirstChild().getType() == Token.GETPROP) {
-                    Node name = n.getFirstChild().getFirstChild();
-                    m_calls.add(name.getNext().getString());
-                } else if (n.getFirstChild().getType() == Token.NAME) {
-                    Node name = n.getFirstChild();
-                    m_calls.add(name.getString());
-                }
+            } else if (n.getType() == Token.CALL || n.getType() == Token.NEW) {
+                addCalls(n);
             } else if (isLib && n.getType() == Token.FUNCTION) {
                 /*
                  We need to check to make sure this is a named
@@ -126,8 +124,61 @@ public class JSlim {
         return node;
     }
     
+    private void addCall(String call)
+    {
+        if (!m_calls.contains(call)) {
+            m_calls.add(call);
+        }
+    }
+    
+    private void addCallsProp(Node getProp)
+    {
+        if (getProp.getLastChild().getType() == Token.STRING) {
+            addCall(getProp.getLastChild().getString());
+        }
+        
+        if (getProp.getFirstChild().getType() == Token.CALL) {
+            /*
+             Add the function name
+             */
+            addCall(getProp.getLastChild().getString());
+            
+            if (getProp.getFirstChild().getFirstChild().getType() == Token.NAME) {
+                addCall(getProp.getFirstChild().getFirstChild().getString());
+            }
+        } else if (getProp.getFirstChild().getType() == Token.GETPROP) {
+            addCallsProp(getProp.getFirstChild());
+        }
+    }
+    
+    private void addCalls(Node call)
+    {
+        //assert call.getType() == Token.CALL || call.getType() == Token.NEW;
+        
+        if (call.getType() == Token.GETPROP) {
+            addCallsProp(call);
+        } else if (call.getFirstChild().getType() == Token.GETPROP) {
+            addCallsProp(call.getFirstChild());
+        } else if (call.getFirstChild().getType() == Token.NAME) {
+            Node name = call.getFirstChild();
+            addCall(name.getString());
+            System.out.println("name.getString(): " + name.getString());
+        }
+    }
+    
     private void printStack() {
+        /*for (String call : m_calls) {
+            System.out.println("Call: " + call);
+        }*/
+        
         for (Node n : m_funcs) {
+            if (n.getParent() == null || n.getParent().getParent() == null) {
+                /*
+                 This means the function has already been removed
+                 */
+                continue;
+            }
+            
             if (n.getParent().getType() == Token.STRING) {
                 /*
                  This is a closure style function like this:
@@ -143,7 +194,7 @@ public class JSlim {
                     function myFunc()
                  */
                 if (!m_calls.contains(n.getFirstChild().getString())) {
-                    System.out.println("n.toStringTree(): " + n.toStringTree());
+                    //System.out.println("n.toStringTree(): " + n.toStringTree());
                     System.out.println("Removing function: " + n.getFirstChild().getString());
                     n.detachFromParent();
                 }
@@ -185,6 +236,8 @@ public class JSlim {
             //String libJS = FileUtils.readFileToString(new File("jquery-1.6.2.js"), "UTF-8");
             String libJS = FileUtils.readFileToString(new File("lib.js"), "UTF-8");
             System.out.println("compiled code: " + slim.addLib(libJS));
+            
+            FileUtils.writeStringToFile(new File("out.js"), slim.addLib(libJS));
         } catch (Exception e) {
             e.printStackTrace();
         }
