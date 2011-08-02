@@ -136,8 +136,8 @@ public class JSlim {
                      likely getting called without a direct function reference
                      so we have to leave it there.
                      */
-                    if (n.getParent().getParent().getType() != Token.OBJECTLIT &&
-                        n.getParent().getParent().getParent().getType() != Token.CALL) {
+                    if (!(n.getParent().getParent().getType() == Token.OBJECTLIT &&
+                          n.getParent().getParent().getParent().getType() == Token.CALL)) {
                         m_funcs.add(n);
                     }
                 }
@@ -306,9 +306,9 @@ public class JSlim {
             String mainJS = FileUtils.readFileToString(new File("main.js"), "UTF-8");
             slim.slim(mainJS, false);
             
-            String libJS = FileUtils.readFileToString(new File("jquery-ui-1.8.14.custom.min.js"), "UTF-8");
+            //String libJS = FileUtils.readFileToString(new File("jquery-ui-1.8.14.custom.min.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("jquery.min.js"), "UTF-8");
-            //String libJS = FileUtils.readFileToString(new File("lib.js"), "UTF-8");
+            String libJS = FileUtils.readFileToString(new File("lib.js"), "UTF-8");
             //System.out.println("compiled code: " + slim.addLib(libJS));
             
             FileUtils.writeStringToFile(new File("out.js"), slim.addLib(libJS));

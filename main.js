@@ -1,5 +1,7 @@
 jQuery(document).ready(function() {
     $('#output').append('It works!');
     
-    $('#dialog').dialog();
+    //$('#dialog').dialog();
+    
+    obj1.init();
 });
