@@ -136,7 +136,8 @@ public class JSlim {
                      likely getting called without a direct function reference
                      so we have to leave it there.
                      */
-                    if (n.getParent().getParent().getType() != Token.OBJECTLIT) {
+                    if (n.getParent().getParent().getType() != Token.OBJECTLIT &&
+                        n.getParent().getParent().getParent().getType() != Token.CALL) {
                         m_funcs.add(n);
                     }
                 }
