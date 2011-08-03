@@ -145,7 +145,8 @@ public class JSlim {
                      so we have to leave it there.
                      */
                     if (!(n.getParent().getParent().getType() == Token.OBJECTLIT &&
-                          n.getParent().getParent().getParent().getType() == Token.CALL)) {
+                          n.getParent().getParent().getParent().getType() == Token.CALL) &&
+                        getFunctionName(n) != null) {
                         if (isLib) {
                             m_libFuncs.add(n);
                         } else {
@@ -460,25 +461,53 @@ public class JSlim {
     
     private String getFunctionName(Node n)
     {
-        if (n.getParent().getType() == Token.ASSIGN) {
-            /*
-             This is a property assignment function like:
-                myObj.func1 = function()
-             */
-            return n.getParent().getFirstChild().getLastChild().getString();
-        }
-        if (n.getParent().getType() == Token.STRING) {
-            /*
-             This is a closure style function like this:
-                 myFunc: function()
-             */
-            return n.getParent().getString();
-        } else {
-            /*
-             This is a standard type of function like this:
-                function myFunc()
-             */
-            return n.getFirstChild().getString();
+        try {
+            if (n.getParent().getType() == Token.ASSIGN) {
+                if (n.getParent().getFirstChild().getChildCount() == 0) {
+                    /*
+                     This is a variable assignment of a function to a
+                     variable in the globabl scope.  These functions are
+                     just too big in scope so we ignore them.  Example:
+                        myVar = function()
+                     */
+                    return null;
+                } else if (n.getParent().getFirstChild().getType() == Token.GETELEM) {
+                    /*
+                     This is a property assignment function with an array
+                     index like this: 
+                        jQuery.fn[ "inner" + name ] = function()
+     
+                     These functions are tricky to remove since we can't
+                     depend on just the name when removing them.  We're
+                     just leaving them for now.
+                     */
+                    return null;
+                } else {
+                    /*
+                     This is a property assignment function like:
+                        myObj.func1 = function()
+                     */
+                    return n.getParent().getFirstChild().getLastChild().getString();
+                }
+            }
+            
+            if (n.getParent().getType() == Token.STRING) {
+                /*
+                 This is a closure style function like this:
+                     myFunc: function()
+                 */
+                return n.getParent().getString();
+            } else {
+                /*
+                 This is a standard type of function like this:
+                    function myFunc()
+                 */
+                return n.getFirstChild().getString();
+            }
+        } catch (Exception e) {
+            System.out.println("npe: " + n.toStringTree());
+            e.printStackTrace();
+            throw new RuntimeException("stop here...");
         }
     }
     
@@ -559,8 +588,9 @@ public class JSlim {
             //String libJS = FileUtils.readFileToString(new File("jquery-ui-1.8.14.custom.min.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("jquery.min.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("lib.js"), "UTF-8");
+            String libJS = FileUtils.readFileToString(new File("jquery-1.6.2.js"), "UTF-8");
             //System.out.println("compiled code: " + slim.addLib(libJS));
-            String libJS = FileUtils.readFileToString(new File("underscore.js"), "UTF-8");
+            //String libJS = FileUtils.readFileToString(new File("underscore.js"), "UTF-8");
             
             FileUtils.writeStringToFile(new File("out.js"), slim.addLib(libJS));
             //FileUtils.writeStringToFile(new File("out.js"), plainCompile(libJS));
