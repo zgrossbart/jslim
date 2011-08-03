@@ -65,6 +65,9 @@ public class JSlim {
         if (isLib) {
             prune();
         }
+        
+        System.out.println("Removed " + (m_libFuncs.size() - m_keepers.size()) + " out of " + m_libFuncs.size() + " functions.");
+        
         //System.out.println("n: " + n.toStringTree());
         
         //System.out.println("n.toString(): \n" + n.toStringTree());
@@ -132,7 +135,8 @@ public class JSlim {
                 if (n.getParent().getType() == Token.STRING ||
                     (n.getFirstChild().getType() == Token.NAME &&
                      n.getFirstChild().getString() != null &&
-                     n.getFirstChild().getString().length() > 0)) {
+                     n.getFirstChild().getString().length() > 0) ||
+                    n.getParent().getType() == Token.ASSIGN) {
                     
                     /*
                      If this function is part of an object list that means
@@ -235,16 +239,14 @@ public class JSlim {
     }
     
     private void prune() {
-        /*for (String call : m_calls) {
-            System.out.println("Call: " + call);
-        }*/
-        
         m_allFuncs.addAll(m_funcs);
         m_allFuncs.addAll(m_libFuncs);
         
         for (String call : m_calls) {
             findKeepers(call);
         }
+        
+        System.out.println("m_keepers: " + m_keepers);
         
         for (Node func : m_libFuncs) {
             if (!m_keepers.contains(func)) {
@@ -269,20 +271,38 @@ public class JSlim {
              This is a closure style function like this:
                  myFunc: function()
              */
-            if (!m_calls.contains(n.getParent().getString())) {
-                System.out.println("Removing function: " + n.getParent().getString());
-                n.getParent().detachFromParent();
+            //System.out.println("Removing function: " + n.getParent().getString());
+            n.getParent().detachFromParent();
+        } else if (n.getParent().getType() == Token.ASSIGN) {
+            /*
+             This is a property assignment function like:
+                myObj.func1 = function()
+             */
+            Node expr = findExprOrVar(n);
+            if (expr != null && expr.getType() == Token.EXPR_RESULT && expr.getParent() != null) {
+                System.out.println("expr: " + expr);
+                expr.detachFromParent();
             }
         } else {
             /*
              This is a standard type of function like this:
                 function myFunc()
              */
-            if (!m_calls.contains(n.getFirstChild().getString())) {
-                //System.out.println("n.toStringTree(): " + n.toStringTree());
-                System.out.println("Removing function: " + n.getFirstChild().getString());
-                n.detachFromParent();
-            }
+            //System.out.println("n.toStringTree(): " + n.toStringTree());
+            //System.out.println("Removing function: " + n.getFirstChild().getString());
+            n.detachFromParent();
+        }
+    }
+    
+    private Node findExprOrVar(Node n)
+    {
+        if (n == null) {
+            return null;
+        } else if (n.getType() == Token.EXPR_RESULT ||
+                   n.getType() == Token.VAR) {
+            return n;
+        } else {
+            return findExprOrVar(n.getParent());
         }
     }
     
@@ -297,10 +317,12 @@ public class JSlim {
             return;
         }
         
+        System.out.println("findKeepers(" + call + ")");
+        
         m_examinedCalls.add(call);
         
         
-        Node funcs[] = findFunctions(call);
+        Node funcs[] = findMatchingFunctions(call);
             
         for (Node func : funcs) {
             m_keepers.add(func);
@@ -309,6 +331,10 @@ public class JSlim {
                 findKeepers(c);
             }
         }
+        
+        /*if (call.equals("isDate")) {
+            throw new RuntimeException("stop here...");
+        }*/
     }
     
     /**
@@ -380,7 +406,8 @@ public class JSlim {
                 if (n.getParent().getType() == Token.STRING ||
                     (n.getFirstChild().getType() == Token.NAME &&
                      n.getFirstChild().getString() != null &&
-                     n.getFirstChild().getString().length() > 0)) {
+                     n.getFirstChild().getString().length() > 0) ||
+                    n.getParent().getType() == Token.ASSIGN) {
                     
                     /*
                      If this function is part of an object list that means
@@ -401,8 +428,45 @@ public class JSlim {
         return node;
     }
     
+    private List<String> getFunctionNames(Node n)
+    {
+        /*
+         EXPR_RESULT 561 [source_file: input.js]
+            ASSIGN 561 [source_file: input.js]
+                GETPROP 561 [source_file: input.js]
+                    NAME _ 561 [source_file: input.js]
+                    STRING functions 561 [source_file: input.js]
+                ASSIGN 561 [source_file: input.js]
+                    GETPROP 561 [source_file: input.js]
+                        NAME _ 561 [source_file: input.js]
+                        STRING methods 561 [source_file: input.js]
+                    FUNCTION  561 [source_file: input.js]
+         */
+        ArrayList<String> names = new ArrayList<String>();
+        if (n.getType() == Token.FUNCTION) {
+            names.add(getFunctionName(n));
+        }
+        
+        if (n.getType() == Token.ASSIGN) {
+            names.add(n.getFirstChild().getLastChild().getString());
+        }
+        
+        if (n.getParent().getType() == Token.ASSIGN) {
+            names.addAll(getFunctionNames(n.getParent()));
+        }
+        
+        return names;
+    }
+    
     private String getFunctionName(Node n)
     {
+        if (n.getParent().getType() == Token.ASSIGN) {
+            /*
+             This is a property assignment function like:
+                myObj.func1 = function()
+             */
+            return n.getParent().getFirstChild().getLastChild().getString();
+        }
         if (n.getParent().getType() == Token.STRING) {
             /*
              This is a closure style function like this:
@@ -425,27 +489,13 @@ public class JSlim {
      * 
      * @return the functions with this matching name
      */
-    private Node[] findFunctions(String name)
+    private Node[] findMatchingFunctions(String name)
     {
         ArrayList<Node> matches = new ArrayList<Node>();
         
         for (Node n : m_allFuncs) {
-            if (n.getParent().getType() == Token.STRING) {
-                /*
-                 This is a closure style function like this:
-                     myFunc: function()
-                 */
-                if (name.equals(n.getParent().getString())) {
-                    matches.add(n);
-                }
-            } else {
-                /*
-                 This is a standard type of function like this:
-                    function myFunc()
-                 */
-                if (name.equals(n.getFirstChild().getString())) {
-                    matches.add(n);
-                }
+            if (getFunctionNames(n).contains(name)) {
+                matches.add(n);
             }
         }
         
@@ -508,8 +558,9 @@ public class JSlim {
             
             //String libJS = FileUtils.readFileToString(new File("jquery-ui-1.8.14.custom.min.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("jquery.min.js"), "UTF-8");
-            String libJS = FileUtils.readFileToString(new File("lib.js"), "UTF-8");
+            //String libJS = FileUtils.readFileToString(new File("lib.js"), "UTF-8");
             //System.out.println("compiled code: " + slim.addLib(libJS));
+            String libJS = FileUtils.readFileToString(new File("underscore.js"), "UTF-8");
             
             FileUtils.writeStringToFile(new File("out.js"), slim.addLib(libJS));
             //FileUtils.writeStringToFile(new File("out.js"), plainCompile(libJS));
