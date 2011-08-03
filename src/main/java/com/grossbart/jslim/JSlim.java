@@ -286,8 +286,20 @@ public class JSlim {
         }
     }
     
+    private ArrayList<String> m_examinedCalls = new ArrayList<String>();
+    
     private void findKeepers(String call)
     {
+        if (m_examinedCalls.contains(call)) {
+            /*
+             Then we've already examined this call and we can skip it.
+             */
+            return;
+        }
+        
+        m_examinedCalls.add(call);
+        
+        
         Node funcs[] = findFunctions(call);
             
         for (Node func : funcs) {
