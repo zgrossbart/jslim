@@ -19,9 +19,13 @@ obj1 = {
         alert("I'm func 4");
     },
     
+    getObj: function() {
+        return this;
+    },
+    
     init: function() {
         (function(window) {
-            obj1.func4();
+            o.func4();
         }(window));
     }
 }

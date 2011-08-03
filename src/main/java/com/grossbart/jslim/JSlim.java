@@ -3,6 +3,7 @@ package com.grossbart.jslim;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 
@@ -18,6 +19,9 @@ public class JSlim {
     private ArrayList<Node> m_vars = new ArrayList<Node>();
     private ArrayList<String> m_calls = new ArrayList<String>();
     private ArrayList<Node> m_funcs = new ArrayList<Node>();
+    private ArrayList<Node> m_libFuncs = new ArrayList<Node>();
+    private ArrayList<Node> m_allFuncs = new ArrayList<Node>();
+    private ArrayList<Node> m_keepers = new ArrayList<Node>();
     
     public String addLib(String code)
     {
@@ -59,7 +63,7 @@ public class JSlim {
         System.out.println("m_calls: " + m_calls);
         
         if (isLib) {
-            printStack();
+            prune();
         }
         //System.out.println("n: " + n.toStringTree());
         
@@ -138,7 +142,11 @@ public class JSlim {
                      */
                     if (!(n.getParent().getParent().getType() == Token.OBJECTLIT &&
                           n.getParent().getParent().getParent().getType() == Token.CALL)) {
-                        m_funcs.add(n);
+                        if (isLib) {
+                            m_libFuncs.add(n);
+                        } else {
+                            m_funcs.add(n);
+                        }
                     }
                 }
             }
@@ -150,6 +158,11 @@ public class JSlim {
     }
     
     private void addAssign(Node assign)
+    {
+        addAssign(assign, m_calls);
+    }
+    
+    private void addAssign(Node assign, List<String> calls)
     {
         if (assign.getChildCount() < 2) {
             /*
@@ -166,90 +179,265 @@ public class JSlim {
              our calls list.
              */
             
-            addCall(assign.getLastChild().getString());
+            addCall(assign.getLastChild().getString(), calls);
         }
     }
     
-    private void addCall(String call)
+    private void addCall(String call, List<String> calls)
     {
-        if (!m_calls.contains(call)) {
-            m_calls.add(call);
+        if (!calls.contains(call)) {
+            calls.add(call);
         }
     }
     
-    private void addCallsProp(Node getProp)
+    private void addCallsProp(Node getProp, List<String> calls)
     {
         if (getProp.getLastChild().getType() == Token.STRING) {
-            addCall(getProp.getLastChild().getString());
+            addCall(getProp.getLastChild().getString(), calls);
         }
         
         if (getProp.getFirstChild().getType() == Token.CALL) {
             /*
              Add the function name
              */
-            addCall(getProp.getLastChild().getString());
+            addCall(getProp.getLastChild().getString(), calls);
             
             if (getProp.getFirstChild().getFirstChild().getType() == Token.NAME) {
-                addCall(getProp.getFirstChild().getFirstChild().getString());
+                addCall(getProp.getFirstChild().getFirstChild().getString(), calls);
             }
         } else if (getProp.getFirstChild().getType() == Token.GETPROP) {
-            addCallsProp(getProp.getFirstChild());
+            addCallsProp(getProp.getFirstChild(), calls);
         }
         
         if (getProp.getNext() != null && getProp.getNext().getType() == Token.GETPROP) {
-            addCallsProp(getProp.getNext());
+            addCallsProp(getProp.getNext(), calls);
         }
     }
     
     private void addCalls(Node call)
     {
+        addCalls(call, m_calls);
+    }
+    
+    private void addCalls(Node call, List<String> calls)
+    {
         //assert call.getType() == Token.CALL || call.getType() == Token.NEW;
         
         if (call.getType() == Token.GETPROP) {
-            addCallsProp(call);
+            addCallsProp(call, calls);
         } else if (call.getFirstChild().getType() == Token.GETPROP) {
-            addCallsProp(call.getFirstChild());
+            addCallsProp(call.getFirstChild(), calls);
         } else if (call.getFirstChild().getType() == Token.NAME) {
             Node name = call.getFirstChild();
-            addCall(name.getString());
+            addCall(name.getString(), calls);
             System.out.println("name.getString(): " + name.getString());
         }
     }
     
-    private void printStack() {
+    private void prune() {
         /*for (String call : m_calls) {
             System.out.println("Call: " + call);
         }*/
         
-        for (Node n : m_funcs) {
-            if (n.getParent() == null || n.getParent().getParent() == null) {
+        m_allFuncs.addAll(m_funcs);
+        m_allFuncs.addAll(m_libFuncs);
+        
+        for (String call : m_calls) {
+            findKeepers(call);
+        }
+        
+        for (Node func : m_libFuncs) {
+            if (!m_keepers.contains(func)) {
+                removeFunction(func);
+            }
+        }
+    }
+    
+    private void removeFunction(Node n)
+    {
+        System.out.println("removeFunction(" + getFunctionName(n) + ")");
+        
+        if (n.getParent() == null || n.getParent().getParent() == null) {
+            /*
+             This means the function has already been removed
+             */
+            return;
+        }
+        
+        if (n.getParent().getType() == Token.STRING) {
+            /*
+             This is a closure style function like this:
+                 myFunc: function()
+             */
+            if (!m_calls.contains(n.getParent().getString())) {
+                System.out.println("Removing function: " + n.getParent().getString());
+                n.getParent().detachFromParent();
+            }
+        } else {
+            /*
+             This is a standard type of function like this:
+                function myFunc()
+             */
+            if (!m_calls.contains(n.getFirstChild().getString())) {
+                //System.out.println("n.toStringTree(): " + n.toStringTree());
+                System.out.println("Removing function: " + n.getFirstChild().getString());
+                n.detachFromParent();
+            }
+        }
+    }
+    
+    private void findKeepers(String call)
+    {
+        Node funcs[] = findFunctions(call);
+            
+        for (Node func : funcs) {
+            m_keepers.add(func);
+            
+            for (String c : findCalls(func)) {
+                findKeepers(c);
+            }
+        }
+    }
+    
+    /**
+     * Find all of the calls in the given function.
+     * 
+     * @param func   the function to look in
+     * 
+     * @return the list of calls
+     */
+    private String[] findCalls(Node func)
+    {
+        ArrayList<String> calls = new ArrayList<String>();
+        findCalls(func, calls);
+        return calls.toArray(new String[calls.size()]);
+    }
+    
+    private void findCalls(Node node, List<String> calls)
+    {
+        Iterator<Node> nodes = node.children().iterator();
+        
+        while (nodes.hasNext()) {
+            Node n = nodes.next();
+            if (n.getType() == Token.CALL || n.getType() == Token.NEW) {
+                addCalls(n, calls);
+            } else if (n.getType() == Token.ASSIGN ||
+                       n.getType() == Token.ASSIGN_BITOR  ||
+                       n.getType() == Token.ASSIGN_BITXOR ||
+                       n.getType() == Token.ASSIGN_BITAND ||
+                       n.getType() == Token.ASSIGN_LSH ||
+                       n.getType() == Token.ASSIGN_RSH ||
+                       n.getType() == Token.ASSIGN_URSH ||
+                       n.getType() == Token.ASSIGN_ADD ||
+                       n.getType() == Token.ASSIGN_SUB ||
+                       n.getType() == Token.ASSIGN_MUL ||
+                       n.getType() == Token.ASSIGN_DIV ||
+                       n.getType() == Token.ASSIGN_MOD) {
                 /*
-                 This means the function has already been removed
+                 This is an assignment operator.  
                  */
-                continue;
+                addAssign(n, calls);
+            } 
+            
+            findCalls(n, calls);
+        }
+    }
+    
+    private Node[] findFunctions(Node parent)
+    {
+        ArrayList<Node> funcs = new ArrayList<Node>();
+        findFunctions(parent, funcs);
+        
+        return funcs.toArray(new Node[funcs.size()]);
+        
+    }
+    
+    private Node findFunctions(Node node, List<Node> funcs)
+    {
+        Iterator<Node> nodes = node.children().iterator();
+        
+        while (nodes.hasNext()) {
+            Node n = nodes.next();
+            if (n.getType() == Token.FUNCTION) {
+                /*
+                 We need to check to make sure this is a named
+                 function.  If it is an anonymous function then
+                 it can't be called directly outside of scope and
+                 it is being called locally so we can't remove it.
+                 */
+                if (n.getParent().getType() == Token.STRING ||
+                    (n.getFirstChild().getType() == Token.NAME &&
+                     n.getFirstChild().getString() != null &&
+                     n.getFirstChild().getString().length() > 0)) {
+                    
+                    /*
+                     If this function is part of an object list that means
+                     it is named and getting passed to a function and most
+                     likely getting called without a direct function reference
+                     so we have to leave it there.
+                     */
+                    if (!(n.getParent().getParent().getType() == Token.OBJECTLIT &&
+                          n.getParent().getParent().getParent().getType() == Token.CALL)) {
+                        funcs.add(n);
+                    }
+                }
             }
             
+            findFunctions(n, funcs);
+        }
+        
+        return node;
+    }
+    
+    private String getFunctionName(Node n)
+    {
+        if (n.getParent().getType() == Token.STRING) {
+            /*
+             This is a closure style function like this:
+                 myFunc: function()
+             */
+            return n.getParent().getString();
+        } else {
+            /*
+             This is a standard type of function like this:
+                function myFunc()
+             */
+            return n.getFirstChild().getString();
+        }
+    }
+    
+    /**
+     * Find all of the functions with the specified name.
+     * 
+     * @param name   the name of the function to find
+     * 
+     * @return the functions with this matching name
+     */
+    private Node[] findFunctions(String name)
+    {
+        ArrayList<Node> matches = new ArrayList<Node>();
+        
+        for (Node n : m_allFuncs) {
             if (n.getParent().getType() == Token.STRING) {
                 /*
                  This is a closure style function like this:
                      myFunc: function()
                  */
-                if (!m_calls.contains(n.getParent().getString())) {
-                    System.out.println("Removing function: " + n.getParent().getString());
-                    n.getParent().detachFromParent();
+                if (name.equals(n.getParent().getString())) {
+                    matches.add(n);
                 }
             } else {
                 /*
                  This is a standard type of function like this:
                     function myFunc()
                  */
-                if (!m_calls.contains(n.getFirstChild().getString())) {
-                    //System.out.println("n.toStringTree(): " + n.toStringTree());
-                    System.out.println("Removing function: " + n.getFirstChild().getString());
-                    n.detachFromParent();
+                if (name.equals(n.getFirstChild().getString())) {
+                    matches.add(n);
                 }
             }
         }
+        
+        return matches.toArray(new Node[matches.size()]);
     }
     
     private Node block(Node block) {
@@ -281,7 +469,7 @@ public class JSlim {
         
         CompilerOptions options = new CompilerOptions();
         // Advanced mode is used here, but additional options could be set, too.
-        CompilationLevel.SIMPLE_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
+        CompilationLevel.ADVANCED_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
         
         // To get the complete set of externs, the logic in
         // CompilerRunner.getDefaultExterns() should be used here.
