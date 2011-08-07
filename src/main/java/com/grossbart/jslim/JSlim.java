@@ -585,12 +585,12 @@ public class JSlim {
             String mainJS = FileUtils.readFileToString(new File("main.js"), "UTF-8");
             slim.slim(mainJS, false);
             
-            //String libJS = FileUtils.readFileToString(new File("jquery-ui-1.8.14.custom.min.js"), "UTF-8");
-            //String libJS = FileUtils.readFileToString(new File("jquery.min.js"), "UTF-8");
+            //String libJS = FileUtils.readFileToString(new File("libs/jquery-ui-1.8.14.custom.min.js"), "UTF-8");
+            //String libJS = FileUtils.readFileToString(new File("libs/jquery.min.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("lib.js"), "UTF-8");
-            String libJS = FileUtils.readFileToString(new File("jquery-1.6.2.js"), "UTF-8");
+            String libJS = FileUtils.readFileToString(new File("libs/jquery-1.6.2.js"), "UTF-8");
             //System.out.println("compiled code: " + slim.addLib(libJS));
-            //String libJS = FileUtils.readFileToString(new File("underscore.js"), "UTF-8");
+            //String libJS = FileUtils.readFileToString(new File("libs/underscore.js"), "UTF-8");
             
             FileUtils.writeStringToFile(new File("out.js"), slim.addLib(libJS));
             //FileUtils.writeStringToFile(new File("out.js"), plainCompile(libJS));
