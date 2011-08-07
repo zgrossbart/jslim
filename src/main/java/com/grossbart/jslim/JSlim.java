@@ -59,6 +59,8 @@ public class JSlim {
         System.out.println("starting process...");
         Node n = process(node, isLib);
         
+        addExterns();
+        
         System.out.println("Done processing...");
         System.out.println("m_calls: " + m_calls);
         
@@ -555,12 +557,17 @@ public class JSlim {
         return block;
     }
     
+    private void addExterns()
+    {
+        m_calls.add("newf");
+    }
+    
     public static String plainCompile(String code) {
         Compiler compiler = new Compiler();
         
         CompilerOptions options = new CompilerOptions();
         // Advanced mode is used here, but additional options could be set, too.
-        CompilationLevel.ADVANCED_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
+        CompilationLevel.SIMPLE_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
         
         // To get the complete set of externs, the logic in
         // CompilerRunner.getDefaultExterns() should be used here.
@@ -582,13 +589,15 @@ public class JSlim {
         try {
             JSlim slim = new JSlim ();
             
-            String mainJS = FileUtils.readFileToString(new File("main.js"), "UTF-8");
+            //String mainJS = FileUtils.readFileToString(new File("main.js"), "UTF-8");
+            String mainJS = FileUtils.readFileToString(new File("libs/raphael/dots.js"), "UTF-8");
             slim.slim(mainJS, false);
             
             //String libJS = FileUtils.readFileToString(new File("libs/jquery-ui-1.8.14.custom.min.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("libs/jquery.min.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("lib.js"), "UTF-8");
-            String libJS = FileUtils.readFileToString(new File("libs/jquery-1.6.2.js"), "UTF-8");
+            //String libJS = FileUtils.readFileToString(new File("libs/jquery-1.6.2.js"), "UTF-8");
+            String libJS = FileUtils.readFileToString(new File("libs/raphael/raphael.js"), "UTF-8");
             //System.out.println("compiled code: " + slim.addLib(libJS));
             //String libJS = FileUtils.readFileToString(new File("libs/underscore.js"), "UTF-8");
             
