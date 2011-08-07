@@ -127,34 +127,12 @@ public class JSlim {
                  This is an assignment operator.  
                  */
                 addAssign(n);
-            } else if (isLib && n.getType() == Token.FUNCTION) {
-                /*
-                 We need to check to make sure this is a named
-                 function.  If it is an anonymous function then
-                 it can't be called directly outside of scope and
-                 it is being called locally so we can't remove it.
-                 */
-                if (n.getParent().getType() == Token.STRING ||
-                    (n.getFirstChild().getType() == Token.NAME &&
-                     n.getFirstChild().getString() != null &&
-                     n.getFirstChild().getString().length() > 0) ||
-                    n.getParent().getType() == Token.ASSIGN) {
-                    
-                    /*
-                     If this function is part of an object list that means
-                     it is named and getting passed to a function and most
-                     likely getting called without a direct function reference
-                     so we have to leave it there.
-                     */
-                    if (!(n.getParent().getParent().getType() == Token.OBJECTLIT &&
-                          n.getParent().getParent().getParent().getType() == Token.CALL) &&
-                        getFunctionName(n) != null) {
-                        if (isLib) {
-                            m_libFuncs.add(n);
-                        } else {
-                            m_funcs.add(n);
-                        }
-                    }
+            } else if (isLib && n.getType() == Token.FUNCTION &&
+                       isInterestingFunction(n)) {
+                if (isLib) {
+                    m_libFuncs.add(n);
+                } else {
+                    m_funcs.add(n);
                 }
             }
             
@@ -162,6 +140,71 @@ public class JSlim {
         }
         
         return node;
+    }
+    
+    /**
+     * This method determines if the specified function is interesting.  In our case interesting
+     * means it is a potentatial candidate for removal.  There are many reasons the function
+     * might not be a good cadidate.  For example, anonymous functions are never removed since
+     * they are almost always used and there is no way to track if they are used or not.
+     * 
+     * @param n      the function to check
+     * 
+     * @return true if the function is interesting and false otherwise
+     */
+    private boolean isInterestingFunction(Node n)
+    {
+        if (n.getType() != Token.FUNCTION) {
+            /*
+             If this node isn't a function then it definitely isn't an
+             interesting function
+             */
+            return false;
+        }
+        
+        /*
+         We need to check to make sure this is a named
+         function.  If it is an anonymous function then
+         it can't be called directly outside of scope and
+         it is probably being called locally so we can't remove it.
+         */
+        if (n.getParent().getType() == Token.STRING ||
+            (n.getFirstChild().getType() == Token.NAME &&
+             n.getFirstChild().getString() != null &&
+             n.getFirstChild().getString().length() > 0) ||
+            n.getParent().getType() == Token.ASSIGN) {
+            
+            /*
+             If this function is part of an object list that means
+             it is named and getting passed to a function and most
+             likely getting called without a direct function reference
+             so we have to leave it there.
+             */
+            if (!(n.getParent().getParent().getType() == Token.OBJECTLIT &&
+                  n.getParent().getParent().getParent().getType() == Token.CALL)) {
+                
+                /*
+                 If the function doesn't have a name we can identify then it is anonymous and
+                 we can't tell if anyone is calling it.
+                 */
+                if (getFunctionName(n) != null) {
+                    /*
+                     If this function has a direct parent which is another function instead of
+                     a block or a property then it is probably being created to get returned from
+                     the functions and therefore only has a name in he scope of that function.
+                     It might be possible to change the mapping to the parent function, but we
+                     can understand that right now and there might me multiple functions within
+                     this one specific function.
+                     */
+                    if (!(n.getParent().getType() == Token.BLOCK && n.getParent().getParent().getType() == Token.FUNCTION)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        return false;
+        
     }
     
     private void addAssign(Node assign)
@@ -399,30 +442,9 @@ public class JSlim {
         
         while (nodes.hasNext()) {
             Node n = nodes.next();
-            if (n.getType() == Token.FUNCTION) {
-                /*
-                 We need to check to make sure this is a named
-                 function.  If it is an anonymous function then
-                 it can't be called directly outside of scope and
-                 it is being called locally so we can't remove it.
-                 */
-                if (n.getParent().getType() == Token.STRING ||
-                    (n.getFirstChild().getType() == Token.NAME &&
-                     n.getFirstChild().getString() != null &&
-                     n.getFirstChild().getString().length() > 0) ||
-                    n.getParent().getType() == Token.ASSIGN) {
-                    
-                    /*
-                     If this function is part of an object list that means
-                     it is named and getting passed to a function and most
-                     likely getting called without a direct function reference
-                     so we have to leave it there.
-                     */
-                    if (!(n.getParent().getParent().getType() == Token.OBJECTLIT &&
-                          n.getParent().getParent().getParent().getType() == Token.CALL)) {
-                        funcs.add(n);
-                    }
-                }
+            if (n.getType() == Token.FUNCTION && 
+                isInterestingFunction(n)) {
+                funcs.add(n);
             }
             
             findFunctions(n, funcs);
@@ -559,7 +581,7 @@ public class JSlim {
     
     private void addExterns()
     {
-        m_calls.add("newf");
+        //m_calls.add("newf");
     }
     
     public static String plainCompile(String code) {
