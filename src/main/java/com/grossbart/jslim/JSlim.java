@@ -188,6 +188,9 @@ public class JSlim {
                  we can't tell if anyone is calling it.
                  */
                 if (getFunctionName(n) != null) {
+                    //if ("_path2string".equals(getFunctionName(n))) {
+                    //    return false;
+                    //}
                     /*
                      If this function has a direct parent which is another function instead of
                      a block or a property then it is probably being created to get returned from
@@ -230,6 +233,14 @@ public class JSlim {
              */
             
             addCall(assign.getLastChild().getString(), calls);
+        } else if (assign.getFirstChild().getType() == Token.GETELEM &&
+                   assign.getLastChild().getLastChild() != null &&
+                   assign.getLastChild().getLastChild().getType() == Token.STRING) {
+            /*
+             This means it is an assignment to an array element like:
+                 res[toString] = R._path2string;
+             */
+            addCall(assign.getLastChild().getLastChild().getString(), calls);
         }
     }
     
@@ -612,14 +623,15 @@ public class JSlim {
             JSlim slim = new JSlim ();
             
             //String mainJS = FileUtils.readFileToString(new File("main.js"), "UTF-8");
-            String mainJS = FileUtils.readFileToString(new File("libs/raphael/dots.js"), "UTF-8");
+            String mainJS = FileUtils.readFileToString(new File("libs/chart/chart.js"), "UTF-8");
             slim.slim(mainJS, false);
             
             //String libJS = FileUtils.readFileToString(new File("libs/jquery-ui-1.8.14.custom.min.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("libs/jquery.min.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("lib.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("libs/jquery-1.6.2.js"), "UTF-8");
-            String libJS = FileUtils.readFileToString(new File("libs/raphael/raphael.js"), "UTF-8");
+            //String libJS = FileUtils.readFileToString(new File("libs/dots/raphael.js"), "UTF-8");
+            String libJS = FileUtils.readFileToString(new File("libs/chart/raphael.js"), "UTF-8");
             //System.out.println("compiled code: " + slim.addLib(libJS));
             //String libJS = FileUtils.readFileToString(new File("libs/underscore.js"), "UTF-8");
             
