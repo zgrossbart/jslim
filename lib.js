@@ -8,12 +8,13 @@ obj1 = {
     },
     
     func2: function() {
-        $('#output').append("<br>I'm func 2");
+        //$('#output').append("<br>I'm func 2");
+        obj1.func3();
     },
     
     func3: function() {
         $('#output').append("<br>I'm func 3");
-    },
+    }/*,
     
     func4: function() {
         $('#output').append("<br>func4 is about to call AJAX");
@@ -40,10 +41,10 @@ obj1 = {
         (function(window) {
             obj1.func4();
         }(window));
-    }
+    }*/
 };
 
-obj2 = {
+/*obj2 = {
     func2_1: function() {
         $('#output').append('<br>This is function 1 from object 2');
     }
@@ -51,4 +52,4 @@ obj2 = {
 
 jQuery(document).ready(function() {
     obj2.func2_1();
-});
+});*/

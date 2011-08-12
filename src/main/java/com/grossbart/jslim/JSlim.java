@@ -17,7 +17,9 @@ import com.google.javascript.rhino.Token;
 public class JSlim {
 
     private ArrayList<Node> m_vars = new ArrayList<Node>();
-    private ArrayList<String> m_calls = new ArrayList<String>();
+    private ArrayList<Call> m_calls = new ArrayList<Call>();
+    private ArrayList<Call> m_examinedCalls = new ArrayList<Call>();
+    
     private ArrayList<Node> m_funcs = new ArrayList<Node>();
     private ArrayList<Node> m_libFuncs = new ArrayList<Node>();
     private ArrayList<Node> m_allFuncs = new ArrayList<Node>();
@@ -64,11 +66,17 @@ public class JSlim {
         System.out.println("Done processing...");
         System.out.println("m_calls: " + m_calls);
         
+        int funcCount = m_libFuncs.size();
+        
         if (isLib) {
+            System.out.println("Starting prune phase 1.");
+            prune();
+            
+            System.out.println("Starting prune phase 2.");
             prune();
         }
         
-        System.out.println("Removed " + (m_libFuncs.size() - m_keepers.size()) + " out of " + m_libFuncs.size() + " functions.");
+        System.out.println("Removed " + (funcCount - m_keepers.size()) + " out of " + funcCount + " functions.");
         
         //System.out.println("n: " + n.toStringTree());
         
@@ -215,7 +223,7 @@ public class JSlim {
         addAssign(assign, m_calls);
     }
     
-    private void addAssign(Node assign, List<String> calls)
+    private void addAssign(Node assign, List<Call> calls)
     {
         if (assign.getChildCount() < 2) {
             /*
@@ -244,14 +252,34 @@ public class JSlim {
         }
     }
     
-    private void addCall(String call, List<String> calls)
+    private void addCall(String call, List<Call> calls)
     {
-        if (!calls.contains(call)) {
-            calls.add(call);
+        Call c = getCall(call, calls);
+        
+        if (c == null) {
+            c = new Call(call);
+            calls.add(c);
+        } else {
+            /*
+             If the call is already there then we just increment
+             the count
+             */
+            c.incCount();
         }
     }
     
-    private void addCallsProp(Node getProp, List<String> calls)
+    private static Call getCall(String name, List<Call> calls)
+    {
+        for (Call call : calls) {
+            if (call.getName().equals(name)) {
+                return call;
+            }
+        }
+        
+        return null;
+    }
+    
+    private void addCallsProp(Node getProp, List<Call> calls)
     {
         if (getProp.getLastChild().getType() == Token.STRING) {
             addCall(getProp.getLastChild().getString(), calls);
@@ -280,7 +308,7 @@ public class JSlim {
         addCalls(call, m_calls);
     }
     
-    private void addCalls(Node call, List<String> calls)
+    private void addCalls(Node call, List<Call> calls)
     {
         //assert call.getType() == Token.CALL || call.getType() == Token.NEW;
         
@@ -299,7 +327,7 @@ public class JSlim {
         m_allFuncs.addAll(m_funcs);
         m_allFuncs.addAll(m_libFuncs);
         
-        for (String call : m_calls) {
+        for (Call call : m_calls) {
             findKeepers(call);
         }
         
@@ -308,7 +336,12 @@ public class JSlim {
         for (int i = m_libFuncs.size() - 1; i > -1; i--) {
             Node func = m_libFuncs.get(i);
             
+            if (getFunctionName(func).equals("isString")) {
+                System.out.println("m_keepers.contains(func): " + m_keepers.contains(func));
+            }
+            
             if (!m_keepers.contains(func)) {
+                removeCalledKeepers(func);
                 removeFunction(func);
                 m_libFuncs.remove(func);
             }
@@ -317,6 +350,48 @@ public class JSlim {
         System.out.println("Keeping the following functions:");
         for (Node f : m_libFuncs) {
             System.out.println("func: " + getFunctionName(f));
+        }
+    }
+    
+    private void removeCalledKeepers(Node func)
+    {
+        Call calls[] = findCalls(func);
+        for (Call call : calls) {
+            Call orig = getCall(call.getName(), m_calls);
+            if (call.getName().equals("isString")) {
+                System.out.println("issString orig: " + orig);
+                System.out.println("issString call: " + call);
+            }
+            
+            orig.decCount(call.getCount());
+            
+            if (orig.getCount() < 1) {
+                System.out.println("removing called keeper: " + orig);
+                Node f = findFunction(orig.getName());
+                if (f != null) {
+                    m_keepers.remove(f);
+                }
+            }
+        }
+    }
+    
+    private Node findFunction(String name)
+    {
+        for (Node f : m_libFuncs) {
+            if (getFunctionName(f).equals(name)) {
+                return f;
+            }
+        }
+        
+        return null;
+    }
+    
+    private void removeFunction(String func)
+    {
+        for (Node f : m_libFuncs) {
+            if (getFunctionName(f).equals(func)) {
+                removeFunction(f);
+            }
         }
     }
     
@@ -371,35 +446,39 @@ public class JSlim {
         }
     }
     
-    private ArrayList<String> m_examinedCalls = new ArrayList<String>();
-    
-    private void findKeepers(String call)
+    /**
+     * This method recurses all the functions and finds all the calls to actual functions 
+     * and adds them to the list of keepers.
+     * 
+     * @param call
+     */
+    private void findKeepers(Call call)
     {
-        if (m_examinedCalls.contains(call)) {
+        if (getCall(call.getName(), m_examinedCalls) != null) {
             /*
              Then we've already examined this call and we can skip it.
              */
             return;
         }
         
+        //call.incCount();
+        
         System.out.println("findKeepers(" + call + ")");
         
         m_examinedCalls.add(call);
         
         
-        Node funcs[] = findMatchingFunctions(call);
+        Node funcs[] = findMatchingFunctions(call.getName());
             
         for (Node func : funcs) {
             m_keepers.add(func);
+            System.out.println("func: " + getFunctionName(func));
             
-            for (String c : findCalls(func)) {
+            for (Call c : findCalls(func)) {
+                System.out.println("c: " + c);
                 findKeepers(c);
             }
         }
-        
-        /*if (call.equals("isDate")) {
-            throw new RuntimeException("stop here...");
-        }*/
     }
     
     /**
@@ -409,14 +488,14 @@ public class JSlim {
      * 
      * @return the list of calls
      */
-    private String[] findCalls(Node func)
+    private Call[] findCalls(Node func)
     {
-        ArrayList<String> calls = new ArrayList<String>();
+        ArrayList<Call> calls = new ArrayList<Call>();
         findCalls(func, calls);
-        return calls.toArray(new String[calls.size()]);
+        return calls.toArray(new Call[calls.size()]);
     }
     
-    private void findCalls(Node node, List<String> calls)
+    private void findCalls(Node node, List<Call> calls)
     {
         Iterator<Node> nodes = node.children().iterator();
         
@@ -655,3 +734,43 @@ public class JSlim {
     }
 }
 
+class Call
+{
+    private int m_count = 1;
+    private String m_name;
+    
+    public Call(String name)
+    {
+        m_name = name;
+    }
+    
+    public int getCount()
+    {
+        return m_count;
+    }
+    
+    public int incCount()
+    {
+        return m_count++;
+    }
+    
+    public int decCount()
+    {
+        return m_count--;
+    }
+    
+    public int decCount(int dec)
+    {
+        return m_count -= dec;
+    }
+    
+    public String getName()
+    {
+        return m_name;
+    }
+    
+    public String toString()
+    {
+        return m_name + ": " + m_count;
+    }
+}
