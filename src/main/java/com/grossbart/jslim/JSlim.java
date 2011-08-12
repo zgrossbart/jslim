@@ -305,10 +305,18 @@ public class JSlim {
         
         System.out.println("m_keepers: " + m_keepers);
         
-        for (Node func : m_libFuncs) {
+        for (int i = m_libFuncs.size() - 1; i > -1; i--) {
+            Node func = m_libFuncs.get(i);
+            
             if (!m_keepers.contains(func)) {
                 removeFunction(func);
+                m_libFuncs.remove(func);
             }
+        }
+        
+        System.out.println("Keeping the following functions:");
+        for (Node f : m_libFuncs) {
+            System.out.println("func: " + getFunctionName(f));
         }
     }
     
@@ -592,8 +600,8 @@ public class JSlim {
     
     private void addExterns()
     {
-        m_calls.add("elastic");
-        m_calls.add("bounce");
+        //m_calls.add("elastic");
+        //m_calls.add("bounce");
     }
     
     public static String plainCompile(String code) {
@@ -623,20 +631,23 @@ public class JSlim {
         try {
             JSlim slim = new JSlim ();
             
-            //String mainJS = FileUtils.readFileToString(new File("main.js"), "UTF-8");
-            String mainJS = FileUtils.readFileToString(new File("libs/easing/easing.js"), "UTF-8");
+            File in = new File("main.js");
+            
+            String mainJS = FileUtils.readFileToString(in, "UTF-8");
+            //String mainJS = FileUtils.readFileToString(new File("libs/easing/easing.js"), "UTF-8");
             slim.slim(mainJS, false);
             
             //String libJS = FileUtils.readFileToString(new File("libs/jquery-ui-1.8.14.custom.min.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("libs/jquery.min.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("lib.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("libs/jquery-1.6.2.js"), "UTF-8");
-            String libJS = FileUtils.readFileToString(new File("libs/easing/raphael.js"), "UTF-8");
+            //String libJS = FileUtils.readFileToString(new File("libs/easing/raphael.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("libs/chart/raphael.js"), "UTF-8");
             //System.out.println("compiled code: " + slim.addLib(libJS));
-            //String libJS = FileUtils.readFileToString(new File("libs/underscore.js"), "UTF-8");
+            String libJS = FileUtils.readFileToString(new File("libs/underscore.js"), "UTF-8");
             
-            FileUtils.writeStringToFile(new File("out.js"), slim.addLib(libJS));
+            File out = new File("out.js");
+            FileUtils.writeStringToFile(out, slim.addLib(libJS));
             //FileUtils.writeStringToFile(new File("out.js"), plainCompile(libJS));
         } catch (Exception e) {
             e.printStackTrace();
