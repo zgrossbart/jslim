@@ -592,7 +592,8 @@ public class JSlim {
     
     private void addExterns()
     {
-        //m_calls.add("newf");
+        m_calls.add("elastic");
+        m_calls.add("bounce");
     }
     
     public static String plainCompile(String code) {
@@ -623,15 +624,15 @@ public class JSlim {
             JSlim slim = new JSlim ();
             
             //String mainJS = FileUtils.readFileToString(new File("main.js"), "UTF-8");
-            String mainJS = FileUtils.readFileToString(new File("libs/chart/chart.js"), "UTF-8");
+            String mainJS = FileUtils.readFileToString(new File("libs/easing/easing.js"), "UTF-8");
             slim.slim(mainJS, false);
             
             //String libJS = FileUtils.readFileToString(new File("libs/jquery-ui-1.8.14.custom.min.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("libs/jquery.min.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("lib.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("libs/jquery-1.6.2.js"), "UTF-8");
-            //String libJS = FileUtils.readFileToString(new File("libs/dots/raphael.js"), "UTF-8");
-            String libJS = FileUtils.readFileToString(new File("libs/chart/raphael.js"), "UTF-8");
+            String libJS = FileUtils.readFileToString(new File("libs/easing/raphael.js"), "UTF-8");
+            //String libJS = FileUtils.readFileToString(new File("libs/chart/raphael.js"), "UTF-8");
             //System.out.println("compiled code: " + slim.addLib(libJS));
             //String libJS = FileUtils.readFileToString(new File("libs/underscore.js"), "UTF-8");
             
