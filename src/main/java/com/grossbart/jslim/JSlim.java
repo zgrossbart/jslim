@@ -17,14 +17,16 @@ import com.google.javascript.rhino.Token;
 
 public class JSlim {
 
-    private ArrayList<Node> m_vars = new ArrayList<Node>();
-    private ArrayList<Call> m_calls = new ArrayList<Call>();
-    private ArrayList<Call> m_examinedCalls = new ArrayList<Call>();
+    private List<Node> m_vars = new ArrayList<Node>();
+    private List<Call> m_calls = new ArrayList<Call>();
+    private List<Call> m_examinedCalls = new ArrayList<Call>();
     
-    private ArrayList<Node> m_funcs = new ArrayList<Node>();
-    private ArrayList<Node> m_libFuncs = new ArrayList<Node>();
-    private ArrayList<Node> m_allFuncs = new ArrayList<Node>();
-    private ArrayList<Node> m_keepers = new ArrayList<Node>();
+    private List<Node> m_funcs = new ArrayList<Node>();
+    private List<Node> m_libFuncs = new ArrayList<Node>();
+    private List<Node> m_allFuncs = new ArrayList<Node>();
+    private List<Node> m_keepers = new ArrayList<Node>();
+    
+    private List<JSFile> m_files = new ArrayList<JSFile>();
     
     private ErrorManager m_errMgr;
     
@@ -33,11 +35,31 @@ public class JSlim {
         return slim(code, true);
     }
     
+    public void addSourceFile(JSFile file)
+    {
+        m_files.add(file);
+    }
+    
+    public String prune()
+    {
+        StringBuffer sb = new StringBuffer();
+        
+        for (JSFile file : m_files) {
+            if (file.isLib()) {
+                sb.append(file.getContent() + "\n");
+            } else {
+                slim(file.getContent(), false);
+            }
+        }
+        
+        return addLib(sb.toString());
+    }
+    
     /**
      * @param code JavaScript source code to compile.
      * @return The compiled version of the code.
      */
-    public String slim(String code, boolean isLib) {
+    private String slim(String code, boolean isLib) {
         Compiler compiler = new Compiler();
 
         CompilerOptions options = new CompilerOptions();
@@ -81,11 +103,11 @@ public class JSlim {
         int funcCount = m_libFuncs.size();
         
         if (isLib) {
-            System.out.println("Starting prune phase 1.");
-            prune();
+            System.out.println("Starting pruneTree phase 1.");
+            pruneTree();
             
-            System.out.println("Starting prune phase 2.");
-            prune();
+            System.out.println("Starting pruneTree phase 2.");
+            pruneTree();
         }
         
         System.out.println("Removed " + (funcCount - m_keepers.size()) + " out of " + funcCount + " functions.");
@@ -335,7 +357,7 @@ public class JSlim {
         }
     }
     
-    private void prune() {
+    private void pruneTree() {
         m_allFuncs.addAll(m_funcs);
         m_allFuncs.addAll(m_libFuncs);
         
@@ -751,21 +773,24 @@ public class JSlim {
             
             File in = new File("main.js");
             
-            //String mainJS = FileUtils.readFileToString(in, "UTF-8");
-            String mainJS = FileUtils.readFileToString(new File("libs/easing/easing.js"), "UTF-8");
-            slim.slim(mainJS, false);
+            String mainJS = FileUtils.readFileToString(in, "UTF-8");
+            //String mainJS = FileUtils.readFileToString(new File("libs/easing/easing.js"), "UTF-8");
+            //slim.slim(mainJS, false);
             
             //String libJS = FileUtils.readFileToString(new File("libs/jquery-ui-1.8.14.custom.min.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("libs/jquery.min.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("lib.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("libs/jquery-1.6.2.js"), "UTF-8");
-            String libJS = FileUtils.readFileToString(new File("libs/easing/raphael.js"), "UTF-8");
+            //String libJS = FileUtils.readFileToString(new File("libs/easing/raphael.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("libs/chart/raphael.js"), "UTF-8");
             //System.out.println("compiled code: " + slim.addLib(libJS));
-            //String libJS = FileUtils.readFileToString(new File("libs/underscore.js"), "UTF-8");
+            String libJS = FileUtils.readFileToString(new File("libs/underscore.js"), "UTF-8");
+            
+            slim.addSourceFile(new JSFile("main.js", mainJS, false));
+            slim.addSourceFile(new JSFile("underscore.js", libJS, true));
             
             File out = new File("out.js");
-            FileUtils.writeStringToFile(out, slim.addLib(libJS));
+            FileUtils.writeStringToFile(out, slim.prune());
             //FileUtils.writeStringToFile(new File("out.js"), plainCompile(libJS));
         } catch (Exception e) {
             e.printStackTrace();
