@@ -20,12 +20,9 @@ public class JSlimTest {
             String basic = IOUtils.toString(in, "UTF-8");
             
             JSlim slim = new JSlim();
-            System.out.println("slim.addLib(basic): " + slim.addLib(basic));
-            String funcs[] = slim.getKeptFunctions();
+            slim.addLib(basic);
             
-            for (String s : slim.getKeptFunctions()) {
-                System.out.println("Kept function: " + s);
-            }
+            String funcs[] = slim.getKeptFunctions();
             
             assertEquals(funcs.length, 1);
             assertEquals(funcs[0], "func1");
