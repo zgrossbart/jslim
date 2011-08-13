@@ -136,6 +136,23 @@ public class JSlimTest {
     }
     
     @Test
+    public void propertyAssignmentChainTest()
+        throws IOException
+    {
+        JSlim slim = new JSlim();
+        String out = slim.addLib(readFile("propertyassignmentchain.js"));
+        String funcs[] = slim.getKeptFunctions();
+        
+        assertEquals(1, funcs.length);
+        assertEquals("func3", funcs[0]);
+        
+        /*
+         Now we need to make sure the func1 function is still there
+         */
+        assertTrue("The func1 function should still be in the output", out.indexOf("func1") > -1);
+    }
+    
+    @Test
     public void parseErrorTest()
         throws IOException
     {
