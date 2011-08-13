@@ -353,6 +353,13 @@ public class JSlim {
         }
     }
     
+    /**
+     * If we're removing a function then all of the calls within that function to other
+     * functions (and so on recursively) can be removed from our call count.  This method
+     * finds all of them and does just that.
+     * 
+     * @param func
+     */
     private void removeCalledKeepers(Node func)
     {
         Call calls[] = findCalls(func);
@@ -705,25 +712,35 @@ public class JSlim {
         // accessible via the Result.
         return compiler.toSource();
     }
+    
+    public String[] getKeptFunctions()
+    {
+        ArrayList<String> funcs = new ArrayList<String>();
+        for (Node n : m_keepers) {
+            funcs.add(getFunctionName(n));
+        }
+        
+        return funcs.toArray(new String[funcs.size()]);
+    }
 
     public static void main(String[] args) {
         try {
-            JSlim slim = new JSlim ();
+            JSlim slim = new JSlim();
             
             File in = new File("main.js");
             
-            String mainJS = FileUtils.readFileToString(in, "UTF-8");
-            //String mainJS = FileUtils.readFileToString(new File("libs/easing/easing.js"), "UTF-8");
+            //String mainJS = FileUtils.readFileToString(in, "UTF-8");
+            String mainJS = FileUtils.readFileToString(new File("libs/easing/easing.js"), "UTF-8");
             slim.slim(mainJS, false);
             
             //String libJS = FileUtils.readFileToString(new File("libs/jquery-ui-1.8.14.custom.min.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("libs/jquery.min.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("lib.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("libs/jquery-1.6.2.js"), "UTF-8");
-            //String libJS = FileUtils.readFileToString(new File("libs/easing/raphael.js"), "UTF-8");
+            String libJS = FileUtils.readFileToString(new File("libs/easing/raphael.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("libs/chart/raphael.js"), "UTF-8");
             //System.out.println("compiled code: " + slim.addLib(libJS));
-            String libJS = FileUtils.readFileToString(new File("libs/underscore.js"), "UTF-8");
+            //String libJS = FileUtils.readFileToString(new File("libs/underscore.js"), "UTF-8");
             
             File out = new File("out.js");
             FileUtils.writeStringToFile(out, slim.addLib(libJS));
