@@ -124,6 +124,18 @@ public class JSlimTest {
     }
     
     @Test
+    public void functionRefArrayTest()
+        throws IOException
+    {
+        JSlim slim = new JSlim();
+        String out = slim.addLib(readFile("functionrefarray.js"));
+        String funcs[] = slim.getKeptFunctions();
+        
+        assertEquals(1, funcs.length);
+        assertEquals("func1", funcs[0]);
+    }
+    
+    @Test
     public void parseErrorTest()
         throws IOException
     {
