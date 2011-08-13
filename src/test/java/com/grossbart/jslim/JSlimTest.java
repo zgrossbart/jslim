@@ -17,10 +17,8 @@ public class JSlimTest {
     public void basicCompileTest()
         throws IOException
     {
-        String basic = readFile("basic.js");
-        
         JSlim slim = new JSlim();
-        String out = slim.addLib(basic);
+        String out = slim.addLib(readFile("basic.js"));
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(1, funcs.length);
@@ -31,10 +29,8 @@ public class JSlimTest {
     public void funcPropsTest()
         throws IOException
     {
-        String basic = readFile("propFuncs.js");
-        
         JSlim slim = new JSlim();
-        String out = slim.addLib(basic);
+        String out = slim.addLib(readFile("propFuncs.js"));
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(1, funcs.length);
@@ -45,10 +41,8 @@ public class JSlimTest {
     public void assignmentTest()
         throws IOException
     {
-        String basic = readFile("assignment.js");
-        
         JSlim slim = new JSlim();
-        String out = slim.addLib(basic);
+        String out = slim.addLib(readFile("assignment.js"));
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(1, funcs.length);
@@ -59,10 +53,20 @@ public class JSlimTest {
     public void argumentTest()
         throws IOException
     {
-        String basic = readFile("argument.js");
-        
         JSlim slim = new JSlim();
-        String out = slim.addLib(basic);
+        String out = slim.addLib(readFile("argument.js"));
+        String funcs[] = slim.getKeptFunctions();
+        
+        assertEquals(1, funcs.length);
+        assertEquals("func2", funcs[0]);
+    }
+    
+    @Test
+    public void referenceTest()
+        throws IOException
+    {
+        JSlim slim = new JSlim();
+        String out = slim.addLib(readFile("reference.js"));
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(1, funcs.length);
@@ -73,10 +77,8 @@ public class JSlimTest {
     public void parseErrorTest()
         throws IOException
     {
-        String invalid = readFile("invalid.js");
-        
         JSlim slim = new JSlim();
-        String output = slim.addLib(invalid);
+        String output = slim.addLib(readFile("invalid.js"));
         
         //slim.getErrorManager().generateReport();
         
