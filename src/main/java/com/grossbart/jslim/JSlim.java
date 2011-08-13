@@ -132,29 +132,7 @@ public class JSlim {
         
         while (nodes.hasNext()) {
             Node n = nodes.next();
-            /*
-            //System.out.println("n.getType(): " + n.getType());
-            if (n.getType() == Token.CALL && n.getFirstChild().getType() == Token.NAME &&
-                n.getFirstChild().getString().equals("alert")) {
-                //System.out.println("n.toString(): " + n.toStringTree());
-                
-                //System.out.println("removing child...");
-                n.getParent().detachFromParent();
-                //System.out.println("Found the call: " + n.toStringTree());
-                //n.getParent().removeChild(n);
-                return n;
-            }
-            
-            if (n.getType() == Token.CALL && n.getFirstChild().getType() == Token.GETPROP) {
-                System.out.println("Found a function call to " + n.getFirstChild().getLastChild().getString() + 
-                                   " on variable " + n.getParent().getFirstChild().getString());
-            }
-            */
-            
-            /*if (n.getType() == Token.BLOCK) {
-                block(n);
-            }*/
-            
+
             if (n.getType() == Token.VAR && n.getFirstChild().getType() == Token.NAME) {
                 m_vars.add(n);
             } else if (n.getType() == Token.CALL || n.getType() == Token.NEW) {
@@ -698,30 +676,6 @@ public class JSlim {
         }
         
         return matches.toArray(new Node[matches.size()]);
-    }
-    
-    private Node block(Node block) {
-        assert block.getType() == Token.BLOCK;
-        
-        //m_stack.push(new Struct());
-        
-        /*
-        if (vars.size() > 0) {
-            System.out.println("Variables:");
-        }
-        for (Node n : vars) {
-            System.out.println("n: " + n.getFirstChild().getString());
-        }
-        
-        if (calls.size() > 0) {
-            System.out.println("\nCalls:");
-        }
-        for (Node n : calls) {
-            System.out.println("n: " + n.getFirstChild().getString());
-        }
-        */
-        
-        return block;
     }
     
     private void addExterns()
