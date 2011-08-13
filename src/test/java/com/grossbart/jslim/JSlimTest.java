@@ -24,7 +24,7 @@ public class JSlimTest {
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(1, funcs.length);
-        assertEquals(funcs[0], "func1");
+        assertEquals("func1", funcs[0]);
     }
     
     @Test
@@ -38,7 +38,35 @@ public class JSlimTest {
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(1, funcs.length);
-        assertEquals(funcs[0], "func1");
+        assertEquals("func1", funcs[0]);
+    }
+    
+    @Test
+    public void assignmentTest()
+        throws IOException
+    {
+        String basic = readFile("assignment.js");
+        
+        JSlim slim = new JSlim();
+        String out = slim.addLib(basic);
+        String funcs[] = slim.getKeptFunctions();
+        
+        assertEquals(1, funcs.length);
+        assertEquals("func2", funcs[0]);
+    }
+    
+    @Test
+    public void argumentTest()
+        throws IOException
+    {
+        String basic = readFile("argument.js");
+        
+        JSlim slim = new JSlim();
+        String out = slim.addLib(basic);
+        String funcs[] = slim.getKeptFunctions();
+        
+        assertEquals(1, funcs.length);
+        assertEquals("func2", funcs[0]);
     }
     
     @Test
@@ -52,8 +80,8 @@ public class JSlimTest {
         
         //slim.getErrorManager().generateReport();
         
-        assertEquals(slim.getErrorManager().getErrorCount(), 1);
-        assertEquals(slim.getErrorManager().getErrors()[0].getType().key, "JSC_TRAILING_COMMA");
+        assertEquals(1, slim.getErrorManager().getErrorCount());
+        assertEquals("JSC_TRAILING_COMMA", slim.getErrorManager().getErrors()[0].getType().key);
     }
     
     private String readFile(String name)
