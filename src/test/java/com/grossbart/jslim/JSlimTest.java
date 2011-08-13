@@ -106,6 +106,24 @@ public class JSlimTest {
     }
     
     @Test
+    public void inlineFunctionReturnTest()
+        throws IOException
+    {
+        JSlim slim = new JSlim();
+        String out = slim.addLib(readFile("inlinefunctionreturn.js"));
+        String funcs[] = slim.getKeptFunctions();
+        
+        assertEquals(1, funcs.length);
+        assertEquals("func1", funcs[0]);
+        
+        /*
+         Now we need to make sure the newf function is still there
+         */
+        assertTrue("The newf function should still be in the output", out.indexOf("newf") > -1);
+        
+    }
+    
+    @Test
     public void parseErrorTest()
         throws IOException
     {
