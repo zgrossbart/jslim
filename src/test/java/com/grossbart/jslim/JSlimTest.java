@@ -28,6 +28,20 @@ public class JSlimTest {
     }
     
     @Test
+    public void funcPropsTest()
+        throws IOException
+    {
+        String basic = readFile("propFuncs.js");
+        
+        JSlim slim = new JSlim();
+        String out = slim.addLib(basic);
+        String funcs[] = slim.getKeptFunctions();
+        
+        assertEquals(1, funcs.length);
+        assertEquals(funcs[0], "func1");
+    }
+    
+    @Test
     public void parseErrorTest()
         throws IOException
     {
