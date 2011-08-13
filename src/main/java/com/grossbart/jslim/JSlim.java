@@ -702,6 +702,11 @@ public class JSlim {
         //m_calls.add("bounce");
     }
     
+    public void addExtern(String extern)
+    {
+        m_calls.add(new Call(extern));
+    }
+    
     public static String plainCompile(String code) {
         Compiler compiler = new Compiler();
         

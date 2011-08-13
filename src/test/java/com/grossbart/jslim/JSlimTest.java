@@ -74,6 +74,38 @@ public class JSlimTest {
     }
     
     @Test
+    public void referenceChainTest()
+        throws IOException
+    {
+        JSlim slim = new JSlim();
+        String out = slim.addLib(readFile("referencechain.js"));
+        String funcs[] = slim.getKeptFunctions();
+        
+        assertEquals(1, funcs.length);
+        assertEquals("func2", funcs[0]);
+    }
+    
+    @Test
+    public void functionReturnTest()
+        throws IOException
+    {
+        JSlim slim = new JSlim();
+        
+        /*
+         This test references a function as a property and we can't follow
+         that.  This is a place where we need an extern reference.
+         */
+        slim.addExtern("func2");
+        
+        String out = slim.addLib(readFile("functionreturn.js"));
+        String funcs[] = slim.getKeptFunctions();
+        
+        assertEquals(2, funcs.length);
+        assertEquals("func1", funcs[1]);
+        assertEquals("func2", funcs[0]);
+    }
+    
+    @Test
     public void parseErrorTest()
         throws IOException
     {
