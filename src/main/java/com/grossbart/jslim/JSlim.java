@@ -784,10 +784,11 @@ public class JSlim {
             //String libJS = FileUtils.readFileToString(new File("libs/easing/raphael.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("libs/chart/raphael.js"), "UTF-8");
             //System.out.println("compiled code: " + slim.addLib(libJS));
-            String libJS = FileUtils.readFileToString(new File("libs/underscore.js"), "UTF-8");
             
             slim.addSourceFile(new JSFile("main.js", mainJS, false));
-            slim.addSourceFile(new JSFile("underscore.js", libJS, true));
+
+            slim.addSourceFile(new JSFile("jquery-1.6.2.js", FileUtils.readFileToString(new File("libs/jquery-1.6.2.js"), "UTF-8"), true));
+            slim.addSourceFile(new JSFile("underscore.js", FileUtils.readFileToString(new File("libs/underscore.js"), "UTF-8"), true));
             
             File out = new File("out.js");
             FileUtils.writeStringToFile(out, slim.prune());
