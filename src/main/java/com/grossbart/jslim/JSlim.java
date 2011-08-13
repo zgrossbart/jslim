@@ -35,6 +35,7 @@ public class JSlim {
     private List<JSFile> m_files = new ArrayList<JSFile>();
     
     private ErrorManager m_errMgr;
+    private int m_funcCount;
     
     public String addLib(String code)
     {
@@ -106,7 +107,7 @@ public class JSlim {
         System.out.println("Done processing...");
         System.out.println("m_calls: " + m_calls);
         
-        int funcCount = m_libFuncs.size();
+        m_funcCount = m_libFuncs.size();
         
         if (isLib) {
             System.out.println("Starting pruneTree phase 1.");
@@ -116,7 +117,7 @@ public class JSlim {
             pruneTree();
         }
         
-        System.out.println("Removed " + (funcCount - m_keepers.size()) + " out of " + funcCount + " functions.");
+        System.out.println("Removed " + (m_funcCount - m_keepers.size()) + " out of " + m_funcCount + " named functions.");
         
         //System.out.println("n: " + n.toStringTree());
         
@@ -712,6 +713,11 @@ public class JSlim {
         return compiler.toSource();
     }
     
+    /**
+     * Get the list of kept functions after the pruning operation.
+     * 
+     * @return an array of the names of all the functions which were kept after the prune operation
+     */
     public String[] getKeptFunctions()
     {
         ArrayList<String> funcs = new ArrayList<String>();
@@ -722,6 +728,24 @@ public class JSlim {
         return funcs.toArray(new String[funcs.size()]);
     }
     
+    /**
+     * This method returns the total number of named or "interesting" functions found in the 
+     * library files.  This count ignores anonymous functions and other functions this tool
+     * doesn't analyze.
+     * 
+     * @return the total number of functions.
+     */
+    public int getTotalFunctionCount()
+    {
+        return m_funcCount;
+    }
+    
+    /**
+     * Get the error manager for this compilation.  The error manager is never null, but it
+     * can return a zero error count.
+     * 
+     * @return the error manager
+     */
     public ErrorManager getErrorManager()
     {
         return m_errMgr;
