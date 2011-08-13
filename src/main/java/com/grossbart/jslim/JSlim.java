@@ -10,6 +10,7 @@ import org.apache.commons.io.FileUtils;
 import com.google.javascript.jscomp.CompilationLevel;
 import com.google.javascript.jscomp.Compiler;
 import com.google.javascript.jscomp.CompilerOptions;
+import com.google.javascript.jscomp.ErrorManager;
 import com.google.javascript.jscomp.JSSourceFile;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
@@ -24,6 +25,8 @@ public class JSlim {
     private ArrayList<Node> m_libFuncs = new ArrayList<Node>();
     private ArrayList<Node> m_allFuncs = new ArrayList<Node>();
     private ArrayList<Node> m_keepers = new ArrayList<Node>();
+    
+    private ErrorManager m_errMgr;
     
     public String addLib(String code)
     {
@@ -52,6 +55,15 @@ public class JSlim {
         compiler.init(extern, input, options);
 
         compiler.parse();
+        m_errMgr = compiler.getErrorManager();
+        
+        if (m_errMgr.getErrorCount() > 0) {
+            /*
+             Then there were errors parsing the file and we can't
+             prune anything. 
+             */
+            return "";
+        }
 
         Node node = compiler.getRoot();
         System.out.println("node.toString(): \n" + node.toStringTree());
@@ -722,6 +734,11 @@ public class JSlim {
         
         return funcs.toArray(new String[funcs.size()]);
     }
+    
+    public ErrorManager getErrorManager()
+    {
+        return m_errMgr;
+    }
 
     public static void main(String[] args) {
         try {
@@ -748,46 +765,5 @@ public class JSlim {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-}
-
-class Call
-{
-    private int m_count = 1;
-    private String m_name;
-    
-    public Call(String name)
-    {
-        m_name = name;
-    }
-    
-    public int getCount()
-    {
-        return m_count;
-    }
-    
-    public int incCount()
-    {
-        return m_count++;
-    }
-    
-    public int decCount()
-    {
-        return m_count--;
-    }
-    
-    public int decCount(int dec)
-    {
-        return m_count -= dec;
-    }
-    
-    public String getName()
-    {
-        return m_name;
-    }
-    
-    public String toString()
-    {
-        return m_name + ": " + m_count;
     }
 }
