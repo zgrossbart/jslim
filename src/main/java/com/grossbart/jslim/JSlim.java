@@ -1,11 +1,17 @@
 package com.grossbart.jslim;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import com.google.javascript.jscomp.CompilationLevel;
 import com.google.javascript.jscomp.Compiler;
@@ -766,6 +772,26 @@ public class JSlim {
     {
         return m_errMgr;
     }
+    
+    private static void writeGzip(String contents, File file)
+        throws IOException
+    {
+        FileUtils.writeStringToFile(file, contents);
+        
+        FileOutputStream out = new FileOutputStream(new File(file.getParentFile(), file.getName() + ".gz"));
+        
+        try {
+            GZIPOutputStream zipOut = new GZIPOutputStream(out);
+            OutputStreamWriter out2 = new OutputStreamWriter(new BufferedOutputStream(zipOut), "UTF-8");
+    
+            IOUtils.write(contents, out2);
+        } finally {
+            if (out != null) {
+                out.close();
+            }
+        }
+        
+    }
 
     public static void main(String[] args) {
         try {
@@ -791,7 +817,7 @@ public class JSlim {
             slim.addSourceFile(new JSFile("underscore.js", FileUtils.readFileToString(new File("libs/underscore.js"), "UTF-8"), true));
             
             File out = new File("out.js");
-            FileUtils.writeStringToFile(out, slim.prune());
+            JSlim.writeGzip(slim.plainCompile(slim.prune()), out);
             //FileUtils.writeStringToFile(new File("out.js"), plainCompile(libJS));
         } catch (Exception e) {
             e.printStackTrace();
