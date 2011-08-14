@@ -1,5 +1,9 @@
 package com.grossbart.jslim;
 
+/**
+ * A Call represents a single function call within either the library JavaScript files
+ * or the main JavaScript files.
+ */
 public class Call
 {
     private int m_count = 1;

@@ -97,12 +97,19 @@ public class JSlimRunner {
     @Option(name = "--no_validate",
         handler = BooleanOptionHandler.class,
         usage = "Pass this argument to skip the pre-parse file validation step.  This is faster, but won't " +
-                "provide good error messages if the input files are invalid JavaScrip.")
+                "provide good error messages if the input files are invalid JavaScript.")
     private boolean m_preparse = true;
+    
+    @Option(name = "--combine_files",
+        handler = BooleanOptionHandler.class,
+        usage = "Pass this argument to combine the library files and the regular files into a single output file.")
+    private boolean m_combine = true;
     
     @Option(name = "--flagfile",
         usage = "A file containing additional command-line options.")
     private String m_flagFile = "";
+    
+    private StringBuffer m_mainFiles = new StringBuffer();
     
     private void processFlagFile(PrintStream out)
         throws CmdLineException, IOException
@@ -187,6 +194,14 @@ public class JSlimRunner {
          */
         String result = slim.prune();
         
+        if (m_combine) {
+            /*
+             If they want to combine the main files and the library files
+             then we just append them to the results here before the compile step.
+             */
+            result = result + "\n" + m_mainFiles;
+        }
+        
         CompilationLevel level = getCompilationLevel();
         
         if (level != null) {
@@ -231,6 +246,10 @@ public class JSlimRunner {
                     mgr.generateReport();
                     return false;
                 }
+            }
+            
+            if (m_combine && !isLib) {
+                m_mainFiles.append(contents + "\n");
             }
             
             slim.addSourceFile(new JSFile(f.getName(), contents, isLib));
