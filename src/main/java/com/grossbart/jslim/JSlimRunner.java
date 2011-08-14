@@ -2,12 +2,17 @@ package com.grossbart.jslim;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
+
+import com.google.common.collect.Lists;
+import com.google.javascript.jscomp.ErrorManager;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import com.google.common.collect.Lists;
+
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -72,6 +77,74 @@ public class JSlimRunner {
         usage = "The file containing javascript externs. You may specify"
         + " multiple")
     private List<String> m_externs = Lists.newArrayList();
+    
+    @Option(name = "--charset",
+        usage = "Input and output charset for all files. By default, we " +
+                "accept UTF-8 as input and output US_ASCII")
+    private String m_charset = "UTF-8";
+    
+    @Option(name = "--print_tree",
+        handler = BooleanOptionHandler.class,
+        usage = "Prints out the parse tree and exits")
+    private boolean m_printTree = false;
+    
+    @Option(name = "--no_pre_parse",
+        handler = BooleanOptionHandler.class,
+        usage = "Pass this argument to skip the pre-parse file validation step.  This is faster, but won't " +
+                "provide good error messages if the input files are invalid JavaScrip.")
+    private boolean m_preparse = true;
+    
+    @Option(name = "--flagfile",
+        usage = "A file containing additional command-line options.")
+    private String m_flagFile = "";
+    
+    private void processFlagFile(PrintStream out)
+        throws CmdLineException, IOException
+    {
+        if (m_flagFile == null || m_flagFile.trim().length() == 0) {
+            return;
+        }
+        
+        List<String> argsInFile = Lists.newArrayList();
+        File flagFileInput = new File(m_flagFile);
+        
+        String flags = FileUtils.readFileToString(flagFileInput, m_charset);
+        
+        StringTokenizer tokenizer = new StringTokenizer(flags);
+        
+        while (tokenizer.hasMoreTokens()) {
+            argsInFile.add(tokenizer.nextToken());
+        }
+        
+        m_flagFile = "";
+        
+        CmdLineParser parserFileArgs = new CmdLineParser(this);
+        parserFileArgs.parseArgument(argsInFile.toArray(new String[] {}));
+        
+        // Currently we are not supporting this (prevent direct/indirect loops)
+        if (!m_flagFile.equals("")) {
+            out.println("ERROR - Arguments in the file cannot contain --flagfile option.");
+        }
+    }
+    
+    private void prune()
+        throws IOException
+    {
+        JSlim slim = new JSlim();
+        
+        for (String file : m_js) {
+            File f = new File(file);
+            String contents = FileUtils.readFileToString(f, m_charset);
+            
+            if (m_preparse) {
+                ErrorManager mgr = slim.validate(f.getAbsolutePath(), contents);
+                if (mgr.getErrorCount() != 0) {
+                    mgr.generateReport();
+                    return;
+                }
+            }
+        }
+    }
 
     public static void main(String[] args) {
         
@@ -92,9 +165,17 @@ public class JSlimRunner {
             return;
         }
         
-        if (runner.m_displayHelp) {
-            parser.printUsage(System.out);
-            return;
+        try {
+            runner.processFlagFile(System.out);
+            
+            if (runner.m_displayHelp) {
+                parser.printUsage(System.out);
+                return;
+            }
+            
+            runner.prune();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

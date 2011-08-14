@@ -43,6 +43,8 @@ public class JSlim {
     private ErrorManager m_errMgr;
     private int m_funcCount;
     
+    private String m_charset = "UTF-8";
+    
     public String addLib(String code)
     {
         return slim(code, true);
@@ -66,6 +68,36 @@ public class JSlim {
         }
         
         return addLib(sb.toString());
+    }
+    
+    /**
+     * Validate the specified JavaScript file
+     * 
+     * @param name    the name of the file
+     * @param content the file contents
+     * 
+     * @return the error manager containing any errors from the specified file
+     */
+    public static ErrorManager validate(String name, String content)
+    {
+        Compiler compiler = new Compiler();
+
+        CompilerOptions options = new CompilerOptions();
+        // Advanced mode is used here, but additional options could be set, too.
+        CompilationLevel.SIMPLE_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
+
+        // To get the complete set of externs, the logic in
+        // CompilerRunner.getDefaultExterns() should be used here.
+        JSSourceFile extern[] = {JSSourceFile.fromCode("externs.js", "")};
+
+        // The dummy input name "input.js" is used here so that any warnings or
+        // errors will cite line numbers in terms of input.js.
+        JSSourceFile input[] = {JSSourceFile.fromCode(name, content)};
+
+        compiler.init(extern, input, options);
+
+        compiler.parse();
+        return compiler.getErrorManager();
     }
     
     /**
@@ -767,7 +799,7 @@ public class JSlim {
         return m_errMgr;
     }
     
-    private static void writeGzip(String contents, File file)
+    private static void writeGzip(String contents, File file, String charset)
         throws IOException
     {
         System.out.println("writeGzip(" + file + ")");
@@ -777,7 +809,7 @@ public class JSlim {
         
         try {
             GZIPOutputStream zipOut = new GZIPOutputStream(out);
-            OutputStreamWriter out2 = new OutputStreamWriter(new BufferedOutputStream(zipOut), "UTF-8");
+            OutputStreamWriter out2 = new OutputStreamWriter(new BufferedOutputStream(zipOut), charset);
     
             IOUtils.write(contents, out2);
         } finally {
