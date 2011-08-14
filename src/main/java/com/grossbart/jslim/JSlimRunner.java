@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import com.google.common.collect.Lists;
+import com.google.javascript.jscomp.CompilationLevel;
 import com.google.javascript.jscomp.ErrorManager;
 
 import org.apache.commons.io.FileUtils;
@@ -24,7 +25,7 @@ public class JSlimRunner {
     @Option(name = "--help", handler = BooleanOptionHandler.class, usage = "Displays this message")
     private boolean m_displayHelp = false;
     
-    private enum CompilationLevel {
+    private enum SlimCompilationLevel {
         
       /**
        * WHITESPACE_ONLY removes comments and extra whitespace in the input JS.
@@ -51,18 +52,18 @@ public class JSlimRunner {
        * NONE only prunes the library classes and doesn't run the closure compiler on 
        * the resulting JavaScript file. 
        */
-      NONE
+      SKIP
     }
     
     @Option(name = "--compilation_level",
         usage = "Specifies the compilation level to use. Options: " +
         "WHITESPACE_ONLY, SIMPLE_OPTIMIZATIONS, ADVANCED_OPTIMIZATIONS")
-    private CompilationLevel m_compilationLevel = CompilationLevel.SIMPLE_OPTIMIZATIONS;
+    private SlimCompilationLevel m_compilationLevel = SlimCompilationLevel.SIMPLE_OPTIMIZATIONS;
     
     @Option(name = "--js_output_file",
         usage = "Primary output filename. If not specified, output is " +
         "written to stdout")
-    private String m_jsOutputFile = "";
+    private String m_output = null;
     
     @Option(name = "--js",
         usage = "The javascript filename. You may specify multiple")
@@ -88,7 +89,12 @@ public class JSlimRunner {
         usage = "Prints out the parse tree and exits")
     private boolean m_printTree = false;
     
-    @Option(name = "--no_pre_parse",
+    @Option(name = "--skip_gzip",
+        handler = BooleanOptionHandler.class,
+        usage = "Skip GZIPing the results")
+    private boolean m_skipGzip = false;
+    
+    @Option(name = "--no_validate",
         handler = BooleanOptionHandler.class,
         usage = "Pass this argument to skip the pre-parse file validation step.  This is faster, but won't " +
                 "provide good error messages if the input files are invalid JavaScrip.")
@@ -127,12 +133,81 @@ public class JSlimRunner {
         }
     }
     
+    private CompilationLevel getCompilationLevel()
+    {
+        if (m_compilationLevel == SlimCompilationLevel.WHITESPACE_ONLY) {
+            return CompilationLevel.WHITESPACE_ONLY;
+        } else if (m_compilationLevel == SlimCompilationLevel.SIMPLE_OPTIMIZATIONS) {
+            return CompilationLevel.SIMPLE_OPTIMIZATIONS;
+        } else if (m_compilationLevel == SlimCompilationLevel.ADVANCED_OPTIMIZATIONS) {
+            return CompilationLevel.ADVANCED_OPTIMIZATIONS;
+        } else {
+            return null;
+        }
+    }
+    
     private void prune()
         throws IOException
     {
         JSlim slim = new JSlim();
+        slim.setCharset(m_charset);
+        slim.setPrintTree(m_printTree);
         
-        for (String file : m_js) {
+        /*
+         The first step is to add the source files
+         */
+        
+        if (!addFiles(slim, m_js, false)) {
+            return;
+        }
+        
+        if (!addFiles(slim, m_libJs, true)) {
+            return;
+        }
+        
+        /*
+         Then we can call the prune process
+         */
+        String result = slim.prune();
+        
+        CompilationLevel level = getCompilationLevel();
+        
+        if (level != null) {
+            /*
+             Then we run the results through the normal compilation process
+             to make them even smaller
+             */
+            result = JSlim.plainCompile(result, level);
+        }
+        
+        /*
+         Then we can write out the results
+         */
+        if (m_output == null) {
+            System.out.println(result);
+        } else {
+            File out = new File(m_output).getAbsoluteFile();
+            System.out.println("out: " + out);
+            if (!out.getParentFile().exists()) {
+                System.err.println("The specified output directory " + out.getParent() + " does not exist");
+                return;
+            }
+            
+            FileUtils.writeStringToFile(out, result, m_charset);
+            
+            if (!m_skipGzip) {
+                File gzOut = new File(out.getParentFile(), out.getName() + ".gz");
+                JSlim.writeGzip(result, gzOut, m_charset);
+            }
+        }
+        
+        
+    }
+    
+    private boolean addFiles(JSlim slim, List<String> files, boolean isLib)
+        throws IOException
+    {
+        for (String file : files) {
             File f = new File(file);
             String contents = FileUtils.readFileToString(f, m_charset);
             
@@ -140,11 +215,16 @@ public class JSlimRunner {
                 ErrorManager mgr = slim.validate(f.getAbsolutePath(), contents);
                 if (mgr.getErrorCount() != 0) {
                     mgr.generateReport();
-                    return;
+                    return false;
                 }
             }
+            
+            slim.addSourceFile(new JSFile(f.getName(), contents, isLib));
         }
+        
+        return true;
     }
+    
 
     public static void main(String[] args) {
         

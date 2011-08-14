@@ -44,6 +44,7 @@ public class JSlim {
     private int m_funcCount;
     
     private String m_charset = "UTF-8";
+    private boolean m_printTree = false;
     
     public String addLib(String code)
     {
@@ -133,7 +134,9 @@ public class JSlim {
         }
 
         Node node = compiler.getRoot();
-        System.out.println("node.toString(): \n" + node.toStringTree());
+        if (m_printTree) {
+            System.out.println(node.toStringTree());
+        }
         
         //System.out.println("node before change: " + compiler.toSource());
         
@@ -738,12 +741,12 @@ public class JSlim {
         m_calls.add(new Call(extern));
     }
     
-    public static String plainCompile(String code) {
+    public static String plainCompile(String code, CompilationLevel level) {
         Compiler compiler = new Compiler();
         
         CompilerOptions options = new CompilerOptions();
         // Advanced mode is used here, but additional options could be set, too.
-        CompilationLevel.SIMPLE_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
+        level.setOptionsForCompilationLevel(options);
         
         // To get the complete set of externs, the logic in
         // CompilerRunner.getDefaultExterns() should be used here.
@@ -788,6 +791,26 @@ public class JSlim {
         return m_funcCount;
     }
     
+    public String getCharset()
+    {
+        return m_charset;
+    }
+    
+    public void setCharset(String charset)
+    {
+        m_charset = charset;
+    }
+    
+    public boolean shouldPrintTree()
+    {
+        return m_printTree;
+    }
+    
+    public void setPrintTree(boolean printTree)
+    {
+        m_printTree = printTree;
+    }
+    
     /**
      * Get the error manager for this compilation.  The error manager is never null, but it
      * can return a zero error count.
@@ -799,7 +822,7 @@ public class JSlim {
         return m_errMgr;
     }
     
-    private static void writeGzip(String contents, File file, String charset)
+    public static void writeGzip(String contents, File file, String charset)
         throws IOException
     {
         System.out.println("writeGzip(" + file + ")");
