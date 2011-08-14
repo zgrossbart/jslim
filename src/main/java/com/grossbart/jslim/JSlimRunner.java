@@ -177,7 +177,7 @@ public class JSlimRunner {
              Then we run the results through the normal compilation process
              to make them even smaller
              */
-            result = JSlim.plainCompile(result, level);
+            result = JSlim.plainCompile(m_output, result, level);
         }
         
         /*
