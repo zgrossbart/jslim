@@ -22,8 +22,8 @@ import com.google.javascript.jscomp.JSSourceFile;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
 
-public class JSlim {
-
+public class JSlim 
+{
     private List<Node> m_vars = new ArrayList<Node>();
     private List<Call> m_calls = new ArrayList<Call>();
     private List<Call> m_examinedCalls = new ArrayList<Call>();
@@ -40,6 +40,20 @@ public class JSlim {
     
     private String m_charset = "UTF-8";
     private boolean m_printTree = false;
+    
+    private boolean m_debug = false;
+    
+    public void showDebug()
+    {
+        m_debug = true;
+    }
+    
+    private void println(String msg)
+    {
+        if (m_debug) {
+            System.out.println(msg);
+        }
+    }
     
     public String addLib(String code)
     {
@@ -135,29 +149,29 @@ public class JSlim {
         
         //System.out.println("node before change: " + compiler.toSource());
         
-        System.out.println("starting process...");
+        println("starting process...");
         Node n = process(node, isLib);
         
         addExterns();
         
-        System.out.println("Done processing...");
-        System.out.println("m_calls: " + m_calls);
+        println("Done processing...");
+        println("m_calls: " + m_calls);
         
         m_funcCount = m_libFuncs.size();
         
         if (isLib) {
-            System.out.println("Starting pruneTree phase 1.");
+            println("Starting pruneTree phase 1.");
             pruneTree();
             
-            System.out.println("Starting pruneTree phase 2.");
+            println("Starting pruneTree phase 2.");
             pruneTree();
         }
         
-        System.out.println("Removed " + (m_funcCount - m_keepers.size()) + " out of " + m_funcCount + " named functions.");
+        println("Removed " + (m_funcCount - m_keepers.size()) + " out of " + m_funcCount + " named functions.");
         
-        //System.out.println("n: " + n.toStringTree());
+        //println("n: " + n.toStringTree());
         
-        //System.out.println("n.toString(): \n" + n.toStringTree());
+        //println("n.toString(): \n" + n.toStringTree());
         
         // The compiler is responsible for generating the compiled code; it is not
         // accessible via the Result.
@@ -385,7 +399,7 @@ public class JSlim {
         } else if (call.getFirstChild().getType() == Token.NAME) {
             Node name = call.getFirstChild();
             addCall(name.getString(), calls);
-            System.out.println("name.getString(): " + name.getString());
+            println("name.getString(): " + name.getString());
         }
     }
     
@@ -397,13 +411,13 @@ public class JSlim {
             findKeepers(call);
         }
         
-        System.out.println("m_keepers: " + m_keepers);
+        println("m_keepers: " + m_keepers);
         
         for (int i = m_libFuncs.size() - 1; i > -1; i--) {
             Node func = m_libFuncs.get(i);
             
             if (getFunctionName(func).equals("isString")) {
-                System.out.println("m_keepers.contains(func): " + m_keepers.contains(func));
+                println("m_keepers.contains(func): " + m_keepers.contains(func));
             }
             
             if (!m_keepers.contains(func)) {
@@ -413,9 +427,9 @@ public class JSlim {
             }
         }
         
-        System.out.println("Keeping the following functions:");
+        println("Keeping the following functions:");
         for (Node f : m_libFuncs) {
-            System.out.println("func: " + getFunctionName(f));
+            println("func: " + getFunctionName(f));
         }
     }
     
@@ -432,14 +446,14 @@ public class JSlim {
         for (Call call : calls) {
             Call orig = getCall(call.getName(), m_calls);
             if (call.getName().equals("isString")) {
-                System.out.println("issString orig: " + orig);
-                System.out.println("issString call: " + call);
+                println("issString orig: " + orig);
+                println("issString call: " + call);
             }
             
             orig.decCount(call.getCount());
             
             if (orig.getCount() < 1) {
-                System.out.println("removing called keeper: " + orig);
+                println("removing called keeper: " + orig);
                 Node f = findFunction(orig.getName());
                 if (f != null) {
                     m_keepers.remove(f);
@@ -470,7 +484,7 @@ public class JSlim {
     
     private void removeFunction(Node n)
     {
-        System.out.println("removeFunction(" + getFunctionName(n) + ")");
+        println("removeFunction(" + getFunctionName(n) + ")");
         
         if (n.getParent() == null || n.getParent().getParent() == null) {
             /*
@@ -493,7 +507,7 @@ public class JSlim {
              */
             Node expr = findExprOrVar(n);
             if (expr != null && expr.getType() == Token.EXPR_RESULT && expr.getParent() != null) {
-                System.out.println("expr: " + expr);
+                println("expr: " + expr);
                 expr.detachFromParent();
             }
         } else {
@@ -501,8 +515,8 @@ public class JSlim {
              This is a standard type of function like this:
                 function myFunc()
              */
-            //System.out.println("n.toStringTree(): " + n.toStringTree());
-            //System.out.println("Removing function: " + n.getFirstChild().getString());
+            //println("n.toStringTree(): " + n.toStringTree());
+            //println("Removing function: " + n.getFirstChild().getString());
             n.detachFromParent();
         }
     }
@@ -536,7 +550,7 @@ public class JSlim {
         
         //call.incCount();
         
-        System.out.println("findKeepers(" + call + ")");
+        println("findKeepers(" + call + ")");
         
         m_examinedCalls.add(call);
         
@@ -545,10 +559,9 @@ public class JSlim {
             
         for (Node func : funcs) {
             m_keepers.add(func);
-            System.out.println("func: " + getFunctionName(func));
+            println("func: " + getFunctionName(func));
             
             for (Call c : findCalls(func)) {
-                System.out.println("c: " + c);
                 findKeepers(c);
             }
         }
@@ -700,7 +713,7 @@ public class JSlim {
                 return n.getFirstChild().getString();
             }
         } catch (Exception e) {
-            System.out.println("npe: " + n.toStringTree());
+            println("npe: " + n.toStringTree());
             e.printStackTrace();
             throw new RuntimeException("stop here...");
         }
@@ -820,7 +833,6 @@ public class JSlim {
     public static void writeGzip(String contents, File file, String charset)
         throws IOException
     {
-        System.out.println("writeGzip(" + file + ")");
         FileUtils.writeStringToFile(file, contents);
         
         FileOutputStream out = new FileOutputStream(new File(file.getParentFile(), file.getName() + ".gz"));
@@ -854,7 +866,7 @@ public class JSlim {
             //String libJS = FileUtils.readFileToString(new File("libs/jquery-1.6.2.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("libs/easing/raphael.js"), "UTF-8");
             //String libJS = FileUtils.readFileToString(new File("libs/chart/raphael.js"), "UTF-8");
-            //System.out.println("compiled code: " + slim.addLib(libJS));
+            //println("compiled code: " + slim.addLib(libJS));
 
             slim.addSourceFile(new JSFile("main.js", mainJS, false));
 

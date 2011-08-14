@@ -109,6 +109,11 @@ public class JSlimRunner {
         usage = "A file containing additional command-line options.")
     private String m_flagFile = "";
     
+    @Option(name = "--debug",
+        handler = BooleanOptionHandler.class,
+        usage = "Enable debugging options")
+    private boolean m_debug = false;
+    
     private StringBuffer m_mainFiles = new StringBuffer();
     
     private void processFlagFile(PrintStream out)
@@ -170,6 +175,11 @@ public class JSlimRunner {
         throws IOException
     {
         JSlim slim = new JSlim();
+        
+        if (m_debug) {
+            slim.showDebug();
+        }
+        
         slim.setCharset(m_charset);
         slim.setPrintTree(m_printTree);
         
