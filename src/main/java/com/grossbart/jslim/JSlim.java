@@ -692,15 +692,7 @@ public class JSlim {
     
     private void addExterns()
     {
-        /*addExtern("_returnOffset");
-        addExtern("_flag");
-        addExtern("_getAttrNode");
-        addExtern("_getAttr2");
-        addExtern("_getAttr");
         
-        addExtern("_purgeElement");*/
-        //addExtern("_methodized");
-        //addExtern("methodize");
     }
     
     public void addExtern(String extern)
