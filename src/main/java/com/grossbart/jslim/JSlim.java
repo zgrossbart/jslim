@@ -12,6 +12,12 @@ import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import com.google.common.collect.Lists;
+import org.kohsuke.args4j.Argument;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
+import org.kohsuke.args4j.spi.BooleanOptionHandler;
 
 import com.google.javascript.jscomp.CompilationLevel;
 import com.google.javascript.jscomp.Compiler;
@@ -780,38 +786,5 @@ public class JSlim {
             }
         }
         
-    }
-
-    public static void main(String[] args) {
-        try {
-            JSlim slim = new JSlim();
-            
-            File in = new File("libs/prototype/main.js");
-            
-            String mainJS = FileUtils.readFileToString(in, "UTF-8");
-            //String mainJS = FileUtils.readFileToString(new File("libs/easing/easing.js"), "UTF-8");
-            //slim.slim(mainJS, false);
-            
-            //String libJS = FileUtils.readFileToString(new File("libs/jquery-ui-1.8.14.custom.min.js"), "UTF-8");
-            //String libJS = FileUtils.readFileToString(new File("libs/jquery.min.js"), "UTF-8");
-            //String libJS = FileUtils.readFileToString(new File("lib.js"), "UTF-8");
-            //String libJS = FileUtils.readFileToString(new File("libs/jquery-1.6.2.js"), "UTF-8");
-            //String libJS = FileUtils.readFileToString(new File("libs/easing/raphael.js"), "UTF-8");
-            //String libJS = FileUtils.readFileToString(new File("libs/chart/raphael.js"), "UTF-8");
-            //System.out.println("compiled code: " + slim.addLib(libJS));
-            
-            slim.addSourceFile(new JSFile("main.js", mainJS, false));
-
-            //slim.addSourceFile(new JSFile("jquery-1.6.2.js", FileUtils.readFileToString(new File("libs/jquery-1.6.2.js"), "UTF-8"), true));
-            //slim.addSourceFile(new JSFile("underscore.js", FileUtils.readFileToString(new File("libs/underscore.js"), "UTF-8"), true));
-            
-            slim.addSourceFile(new JSFile("modernizr-2.0.6.js", FileUtils.readFileToString(new File("libs/modernizr/modernizr-2.0.6.js"), "UTF-8"), true));
-            
-            File out = new File("libs/modernizr/out.js");
-            JSlim.writeGzip(plainCompile(slim.prune()), out);
-            //FileUtils.writeStringToFile(new File("out.js"), plainCompile(libJS));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
