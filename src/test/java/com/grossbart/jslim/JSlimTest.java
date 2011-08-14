@@ -106,6 +106,26 @@ public class JSlimTest {
     }
     
     @Test
+    public void functionReturn2Test()
+        throws IOException
+    {
+        JSlim slim = new JSlim();
+        
+        String out = slim.addLib(readFile("functionreturn2.js"));
+        String funcs[] = slim.getKeptFunctions();
+        
+        assertEquals(1, funcs.length);
+        assertEquals("func1", funcs[0]);
+        
+        /*
+         The internally returned function in this test isn't "interesting" to
+         our parser so it doesn't show up in the keepers list, but we still
+         want to make sure that it is in the output.
+         */
+        assertTrue("The func2 function should still be in the output", out.indexOf("func2") > -1);
+    }
+    
+    @Test
     public void inlineFunctionReturnTest()
         throws IOException
     {
@@ -120,7 +140,6 @@ public class JSlimTest {
          Now we need to make sure the newf function is still there
          */
         assertTrue("The newf function should still be in the output", out.indexOf("newf") > -1);
-        
     }
     
     @Test
