@@ -19,6 +19,41 @@ public class JSlimRunner {
     @Option(name = "--help", handler = BooleanOptionHandler.class, usage = "Displays this message")
     private boolean m_displayHelp = false;
     
+    private enum CompilationLevel {
+        
+      /**
+       * WHITESPACE_ONLY removes comments and extra whitespace in the input JS.
+       */
+      WHITESPACE_ONLY,
+    
+      /**
+       * SIMPLE_OPTIMIZATIONS performs transformations to the input JS that do not
+       * require any changes to JS that depend on the input JS. For example,
+       * function arguments are renamed (which should not matter to code that
+       * depends on the input JS), but functions themselves are not renamed (which
+       * would otherwise require external code to change to use the renamed function
+       * names).
+       */
+      SIMPLE_OPTIMIZATIONS,
+    
+      /**
+       * ADVANCED_OPTIMIZATIONS aggressively reduces code size by renaming function
+       * names and variables, removing code which is never called, etc.
+       */
+      ADVANCED_OPTIMIZATIONS,
+        
+      /**
+       * NONE only prunes the library classes and doesn't run the closure compiler on 
+       * the resulting JavaScript file. 
+       */
+      NONE
+    }
+    
+    @Option(name = "--compilation_level",
+        usage = "Specifies the compilation level to use. Options: " +
+        "WHITESPACE_ONLY, SIMPLE_OPTIMIZATIONS, ADVANCED_OPTIMIZATIONS")
+    private CompilationLevel m_compilationLevel = CompilationLevel.SIMPLE_OPTIMIZATIONS;
+    
     @Option(name = "--js_output_file",
         usage = "Primary output filename. If not specified, output is " +
         "written to stdout")
@@ -36,7 +71,7 @@ public class JSlimRunner {
     @Option(name = "--externs",
         usage = "The file containing javascript externs. You may specify"
         + " multiple")
-    private List<String> externs = Lists.newArrayList();
+    private List<String> m_externs = Lists.newArrayList();
 
     public static void main(String[] args) {
         
