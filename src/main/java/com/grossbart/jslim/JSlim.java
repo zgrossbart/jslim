@@ -189,6 +189,17 @@ public class JSlim {
             return false;
         }
         
+        if (n.getParent().getType() == Token.ASSIGN &&
+            n.getParent().getParent().getType() == Token.RETURN) {
+            /*
+             Then this is a function getting returned from another
+             function and that makes it really difficult to determine
+             if the function is being called because it is never
+             called directly by named
+             */
+            return false;
+        }
+        
         /*
          We need to check to make sure this is a named
          function.  If it is an anonymous function then
@@ -688,7 +699,8 @@ public class JSlim {
         addExtern("_getAttr");
         
         addExtern("_purgeElement");*/
-        addExtern("_methodized");
+        //addExtern("_methodized");
+        //addExtern("methodize");
     }
     
     public void addExtern(String extern)
