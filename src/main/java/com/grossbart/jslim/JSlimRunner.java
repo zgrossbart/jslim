@@ -193,11 +193,8 @@ public class JSlimRunner {
                 return;
             }
             
-            FileUtils.writeStringToFile(out, result, m_charset);
-            
             if (!m_skipGzip) {
-                File gzOut = new File(out.getParentFile(), out.getName() + ".gz");
-                JSlim.writeGzip(result, gzOut, m_charset);
+                JSlim.writeGzip(result, out, m_charset);
             }
         }
         
@@ -225,23 +222,33 @@ public class JSlimRunner {
         return true;
     }
     
+    private static void printUsage(CmdLineParser parser)
+    {
+        System.out.println("java JSlimRunner [options...] arguments...\n");
+        // print the list of available options
+        parser.printUsage(System.out);
+        System.out.println();
+    }
+    
 
-    public static void main(String[] args) {
-        
+    public static void main(String[] args)
+    {
         JSlimRunner runner = new JSlimRunner();
         
         // parse the command line arguments and options
         CmdLineParser parser = new CmdLineParser(runner);
         parser.setUsageWidth(80); // width of the error display area
         
+        if (args.length == 0) {
+            printUsage(parser);
+            return;
+        }
+        
         try {
             parser.parseArgument(args);
         } catch (CmdLineException e) {
             System.out.println(e.getMessage() + '\n');
-            System.out.println("java JSlimRunner [options...] arguments...\n");
-            // print the list of available options
-            parser.printUsage(System.out);
-            System.out.println();
+            printUsage(parser);
             return;
         }
         
