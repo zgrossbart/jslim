@@ -805,9 +805,9 @@ public class JSlim {
             //slim.addSourceFile(new JSFile("jquery-1.6.2.js", FileUtils.readFileToString(new File("libs/jquery-1.6.2.js"), "UTF-8"), true));
             //slim.addSourceFile(new JSFile("underscore.js", FileUtils.readFileToString(new File("libs/underscore.js"), "UTF-8"), true));
             
-            slim.addSourceFile(new JSFile("prototype.js", FileUtils.readFileToString(new File("libs/prototype/prototype.js"), "UTF-8"), true));
+            slim.addSourceFile(new JSFile("modernizr-2.0.6.js", FileUtils.readFileToString(new File("libs/modernizr/modernizr-2.0.6.js"), "UTF-8"), true));
             
-            File out = new File("libs/prototype/out.js");
+            File out = new File("libs/modernizr/out.js");
             JSlim.writeGzip(plainCompile(slim.prune()), out);
             //FileUtils.writeStringToFile(new File("out.js"), plainCompile(libJS));
         } catch (Exception e) {
