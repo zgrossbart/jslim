@@ -681,8 +681,14 @@ public class JSlim {
     
     private void addExterns()
     {
-        //m_calls.add("elastic");
-        //m_calls.add("bounce");
+        /*addExtern("_returnOffset");
+        addExtern("_flag");
+        addExtern("_getAttrNode");
+        addExtern("_getAttr2");
+        addExtern("_getAttr");
+        
+        addExtern("_purgeElement");*/
+        addExtern("_methodized");
     }
     
     public void addExtern(String extern)
@@ -754,6 +760,7 @@ public class JSlim {
     private static void writeGzip(String contents, File file)
         throws IOException
     {
+        System.out.println("writeGzip(" + file + ")");
         FileUtils.writeStringToFile(file, contents);
         
         FileOutputStream out = new FileOutputStream(new File(file.getParentFile(), file.getName() + ".gz"));
@@ -775,7 +782,7 @@ public class JSlim {
         try {
             JSlim slim = new JSlim();
             
-            File in = new File("main.js");
+            File in = new File("libs/prototype/main.js");
             
             String mainJS = FileUtils.readFileToString(in, "UTF-8");
             //String mainJS = FileUtils.readFileToString(new File("libs/easing/easing.js"), "UTF-8");
@@ -791,11 +798,13 @@ public class JSlim {
             
             slim.addSourceFile(new JSFile("main.js", mainJS, false));
 
-            slim.addSourceFile(new JSFile("jquery-1.6.2.js", FileUtils.readFileToString(new File("libs/jquery-1.6.2.js"), "UTF-8"), true));
-            slim.addSourceFile(new JSFile("underscore.js", FileUtils.readFileToString(new File("libs/underscore.js"), "UTF-8"), true));
+            //slim.addSourceFile(new JSFile("jquery-1.6.2.js", FileUtils.readFileToString(new File("libs/jquery-1.6.2.js"), "UTF-8"), true));
+            //slim.addSourceFile(new JSFile("underscore.js", FileUtils.readFileToString(new File("libs/underscore.js"), "UTF-8"), true));
             
-            File out = new File("out.js");
-            JSlim.writeGzip(slim.plainCompile(slim.prune()), out);
+            slim.addSourceFile(new JSFile("prototype.js", FileUtils.readFileToString(new File("libs/prototype/prototype.js"), "UTF-8"), true));
+            
+            File out = new File("libs/prototype/out.js");
+            JSlim.writeGzip(plainCompile(slim.prune()), out);
             //FileUtils.writeStringToFile(new File("out.js"), plainCompile(libJS));
         } catch (Exception e) {
             e.printStackTrace();
