@@ -133,6 +133,19 @@ public class JSlimRunner {
         }
     }
     
+    private void readExterns(JSlim slim)
+        throws IOException
+    {
+        for (String f : m_externs) {
+            File file = new File(f);
+            List<String> externs = FileUtils.readLines(file, m_charset);
+            
+            for (String extern : externs) {
+                slim.addExtern(extern);
+            }
+        }
+    }
+    
     private CompilationLevel getCompilationLevel()
     {
         if (m_compilationLevel == SlimCompilationLevel.WHITESPACE_ONLY) {
@@ -154,9 +167,13 @@ public class JSlimRunner {
         slim.setPrintTree(m_printTree);
         
         /*
-         The first step is to add the source files
+         First we add the externs
          */
+        readExterns(slim);
         
+        /*
+         Then we add the source files
+         */
         if (!addFiles(slim, m_js, false)) {
             return;
         }
