@@ -197,7 +197,7 @@ public class JSlim
         Node n = process(node, isLib);
         
         LOGGER.log(Level.INFO, "Done processing...");
-        LOGGER.log(Level.INFO, "m_calls: " + m_calls);
+        LOGGER.log(Level.FINE, "m_calls: " + m_calls);
         
         m_funcCount = m_libFuncs.size();
         
@@ -497,7 +497,7 @@ public class JSlim
         } else if (call.getFirstChild().getType() == Token.NAME) {
             Node name = call.getFirstChild();
             addCall(name.getString(), calls);
-            LOGGER.log(Level.INFO, "name.getString(): " + name.getString());
+            LOGGER.log(Level.FINE, "name.getString(): " + name.getString());
         }
     }
     
@@ -512,13 +512,13 @@ public class JSlim
             findKeepers(call);
         }
         
-        LOGGER.log(Level.INFO, "m_keepers: " + m_keepers);
+        LOGGER.log(Level.FINE, "m_keepers: " + m_keepers);
         
         for (int i = m_libFuncs.size() - 1; i > -1; i--) {
             Node func = m_libFuncs.get(i);
             
             if (getFunctionName(func).equals("isString")) {
-                LOGGER.log(Level.INFO, "m_keepers.contains(func): " + m_keepers.contains(func));
+                LOGGER.log(Level.FINE, "m_keepers.contains(func): " + m_keepers.contains(func));
             }
             
             if (!m_keepers.contains(func)) {
@@ -549,7 +549,7 @@ public class JSlim
             orig.decCount(call.getCount());
             
             if (orig.getCount() < 1) {
-                LOGGER.log(Level.INFO, "removing called keeper: " + orig);
+                LOGGER.log(Level.FINE, "removing called keeper: " + orig);
                 Node f = findFunction(orig.getName());
                 if (f != null) {
                     m_keepers.remove(f);
@@ -620,7 +620,7 @@ public class JSlim
              */
             Node expr = findExprOrVar(n);
             if (expr != null && expr.getType() == Token.EXPR_RESULT && expr.getParent() != null) {
-                LOGGER.log(Level.INFO, "expr: " + expr);
+                LOGGER.log(Level.FINE, "expr: " + expr);
                 expr.detachFromParent();
             }
         } else {
@@ -671,7 +671,7 @@ public class JSlim
         
         //call.incCount();
         
-        LOGGER.log(Level.INFO, "findKeepers(" + call + ")");
+        LOGGER.log(Level.FINE, "findKeepers(" + call + ")");
         
         m_examinedCalls.add(call);
         
@@ -680,7 +680,7 @@ public class JSlim
             
         for (Node func : funcs) {
             m_keepers.add(func);
-            LOGGER.log(Level.INFO, "func: " + getFunctionName(func));
+            LOGGER.log(Level.FINE, "func: " + getFunctionName(func));
             
             for (Call c : findCalls(func)) {
                 findKeepers(c);
@@ -873,7 +873,7 @@ public class JSlim
                 return n.getFirstChild().getString();
             }
         } catch (Exception e) {
-            LOGGER.log(Level.INFO, "npe: " + n.toStringTree());
+            LOGGER.log(Level.SEVERE, "npe: " + n.toStringTree());
             e.printStackTrace();
             throw new RuntimeException("stop here...");
         }
