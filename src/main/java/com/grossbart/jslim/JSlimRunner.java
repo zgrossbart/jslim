@@ -20,7 +20,11 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.BooleanOptionHandler;
 
-public class JSlimRunner {
+/**
+ * The runner handles all argument processing and sets up the precompile process.  
+ */
+public class JSlimRunner
+{
     
     @Option(name = "--help", handler = BooleanOptionHandler.class, usage = "Displays this message")
     private boolean m_displayHelp = false;
@@ -116,6 +120,16 @@ public class JSlimRunner {
     
     private StringBuffer m_mainFiles = new StringBuffer();
     
+    /**
+     * Process the flags file and add the argument values to the current class.
+     * 
+     * @param out    the output stream for printing errors while parsing the arguments
+     * 
+     * @exception CmdLineException
+     *                   if there's an error parsing the arguments
+     * @exception IOException
+     *                   if there is an exception reading the file
+     */
     private void processFlagFile(PrintStream out)
         throws CmdLineException, IOException
     {
@@ -145,6 +159,15 @@ public class JSlimRunner {
         }
     }
     
+    /**
+     * Read in the externs file if one had been supplied and add the extern references to 
+     * the compiler.
+     * 
+     * @param slim   the compiler
+     * 
+     * @exception IOException
+     *                   if there's an error reading the externs file
+     */
     private void readExterns(JSlim slim)
         throws IOException
     {
@@ -158,6 +181,11 @@ public class JSlimRunner {
         }
     }
     
+    /**
+     * Get the compilation level for the closure compilation.
+     * 
+     * @return the complication level or null of the supplied level was SKIP
+     */
     private CompilationLevel getCompilationLevel()
     {
         if (m_compilationLevel == SlimCompilationLevel.WHITESPACE_ONLY) {
@@ -171,6 +199,12 @@ public class JSlimRunner {
         }
     }
     
+    /**
+     * Call the prune process.
+     * 
+     * @exception IOException
+     *                   if there's an error reading or writing the files to prune
+     */
     private void prune()
         throws IOException
     {
@@ -243,6 +277,17 @@ public class JSlimRunner {
         
     }
     
+    /**
+     * Add files for compilation.
+     * 
+     * @param slim   the compiler instance
+     * @param files  the files to add
+     * @param isLib  if these files are library files
+     * 
+     * @return true if the files were properly validated or false otherwise
+     * @exception IOException
+     *                   if there is an error reading the files
+     */
     private boolean addFiles(JSlim slim, List<String> files, boolean isLib)
         throws IOException
     {
@@ -268,6 +313,11 @@ public class JSlimRunner {
         return true;
     }
     
+    /**
+     * Print the usage of this class.
+     * 
+     * @param parser the parser of the command line arguments
+     */
     private static void printUsage(CmdLineParser parser)
     {
         System.out.println("java JSlimRunner [options...] arguments...\n");
@@ -277,6 +327,11 @@ public class JSlimRunner {
     }
     
 
+    /**
+     * The main entry point.
+     * 
+     * @param args   the arguments for this process
+     */
     public static void main(String[] args)
     {
         JSlimRunner runner = new JSlimRunner();
