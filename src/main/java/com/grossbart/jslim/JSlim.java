@@ -22,6 +22,11 @@ import com.google.javascript.jscomp.JSSourceFile;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
 
+/**
+ * JSlim is a static code analysis tool for JavaScript.  It looks at a JavaScript program
+ * and a set of library files it uses and creates a new library with only the functions
+ * which are actually used.
+ */
 public class JSlim 
 {
     private List<Node> m_vars = new ArrayList<Node>();
@@ -43,11 +48,19 @@ public class JSlim
     
     private boolean m_debug = false;
     
+    /**
+     * Set this class to show debugging messages.
+     */
     public void showDebug()
     {
         m_debug = true;
     }
     
+    /**
+     * Print a message to System.out if debugging is enabled.
+     * 
+     * @param msg    the message to print
+     */
     private void println(String msg)
     {
         if (m_debug) {
@@ -55,16 +68,33 @@ public class JSlim
         }
     }
     
-    public String addLib(String code)
+    /**
+     * Add the library contents to the compiler and prune them.
+     * 
+     * @param code   the code contents
+     * 
+     * @return the pruned file
+     */
+    protected String addLib(String code)
     {
         return slim(code, true);
     }
     
+    /**
+     * Add a source file for compilation.
+     * 
+     * @param file   the file to compile
+     */
     public void addSourceFile(JSFile file)
     {
         m_files.add(file);
     }
     
+    /**
+     * Prune all of the files which have been added to this compiler instance.
+     * 
+     * @return the pruned result of this precompile
+     */
     public String prune()
     {
         StringBuffer sb = new StringBuffer();
@@ -111,7 +141,11 @@ public class JSlim
     }
     
     /**
-     * @param code JavaScript source code to compile.
+     * Parse, compile, and slim the specified code
+     * 
+     * @param code   JavaScript source code to compile.
+     * @param isLib  true if this is a library file and false otherwise
+     * 
      * @return The compiled version of the code.
      */
     private String slim(String code, boolean isLib) {
@@ -152,8 +186,6 @@ public class JSlim
         println("starting process...");
         Node n = process(node, isLib);
         
-        addExterns();
-        
         println("Done processing...");
         println("m_calls: " + m_calls);
         
@@ -178,6 +210,15 @@ public class JSlim
         return compiler.toSource();
     }
     
+    /**
+     * Process this particular node looking for calls, interesting functions, and 
+     * variables.
+     * 
+     * @param node   the node to process
+     * @param isLib  true if this node is from a library file and false otherwise
+     * 
+     * @return the original node reference
+     */
     private Node process(Node node, boolean isLib) {
         Iterator<Node> nodes = node.children().iterator();
         
@@ -298,11 +339,23 @@ public class JSlim
         
     }
     
+    /**
+     * Add an assignment call to our list of calls.
+     * 
+     * @param assign the assignment node to add
+     */
     private void addAssign(Node assign)
     {
         addAssign(assign, m_calls);
     }
     
+    /**
+     * Add an assignment call to the specified list of calls or increment the count if
+     * that assignment is already there..
+     * 
+     * @param assign the assignment node to add
+     * @param calls  the list of calls to add this assignment to
+     */
     private void addAssign(Node assign, List<Call> calls)
     {
         if (assign.getChildCount() < 2) {
@@ -332,6 +385,13 @@ public class JSlim
         }
     }
     
+    /**
+     * Add a call to the specified list of calls or increment the call count if the call
+     * is already in the list.
+     * 
+     * @param call   the call to add
+     * @param calls  the list to add it to
+     */
     private void addCall(String call, List<Call> calls)
     {
         Call c = getCall(call, calls);
@@ -348,6 +408,14 @@ public class JSlim
         }
     }
     
+    /**
+     * Get the call object for the call with the specified name.
+     * 
+     * @param name   the call name to look for
+     * @param calls  the list of calls to look in
+     * 
+     * @return the call if it was in the list of null if it wasn't
+     */
     private static Call getCall(String name, List<Call> calls)
     {
         for (Call call : calls) {
@@ -359,6 +427,12 @@ public class JSlim
         return null;
     }
     
+    /**
+     * Add a call with the specified get property node.
+     * 
+     * @param getProp the node to add
+     * @param calls   the list of calls to add it to
+     */
     private void addCallsProp(Node getProp, List<Call> calls)
     {
         if (getProp.getLastChild().getType() == Token.STRING) {
@@ -383,11 +457,22 @@ public class JSlim
         }
     }
     
+    /**
+     * Add all calls underneath the specified node.
+     * 
+     * @param call   the call to look in
+     */
     private void addCalls(Node call)
     {
         addCalls(call, m_calls);
     }
     
+    /**
+     * Add all calls underneath the specified node.
+     * 
+     * @param call   the call to look in
+     * @param calls  the list to add the call to
+     */
     private void addCalls(Node call, List<Call> calls)
     {
         //assert call.getType() == Token.CALL || call.getType() == Token.NEW;
@@ -403,6 +488,9 @@ public class JSlim
         }
     }
     
+    /**
+     * Use all the collected information to prune the tree and remove unused functions.
+     */
     private void pruneTree() {
         m_allFuncs.addAll(m_funcs);
         m_allFuncs.addAll(m_libFuncs);
@@ -438,7 +526,7 @@ public class JSlim
      * functions (and so on recursively) can be removed from our call count.  This method
      * finds all of them and does just that.
      * 
-     * @param func
+     * @param func   the function which will be removed
      */
     private void removeCalledKeepers(Node func)
     {
@@ -462,6 +550,13 @@ public class JSlim
         }
     }
     
+    /**
+     * Find the function in our list of known functions with the specified name.
+     * 
+     * @param name   the name of the function to find
+     * 
+     * @return the function with the specified name or null if that function isn't in our list
+     */
     private Node findFunction(String name)
     {
         for (Node f : m_libFuncs) {
@@ -473,6 +568,11 @@ public class JSlim
         return null;
     }
     
+    /**
+     * Remove all functions with the specified name from the tree.
+     * 
+     * @param func   the function name to remove
+     */
     private void removeFunction(String func)
     {
         for (Node f : m_libFuncs) {
@@ -482,6 +582,11 @@ public class JSlim
         }
     }
     
+    /**
+     * Remove the function at the specified node.
+     * 
+     * @param n      the node to remove
+     */
     private void removeFunction(Node n)
     {
         println("removeFunction(" + getFunctionName(n) + ")");
@@ -521,6 +626,14 @@ public class JSlim
         }
     }
     
+    /**
+     * Find the closest expression result or variable declaration token parent of the 
+     * specified node.
+     * 
+     * @param n      the child node to look for
+     * 
+     * @return the closest variable or expression result parent or null if there isn't one
+     */
     private Node findExprOrVar(Node n)
     {
         if (n == null) {
@@ -534,10 +647,10 @@ public class JSlim
     }
     
     /**
-     * This method recurses all the functions and finds all the calls to actual functions 
+     * This method recurses all the functions and finds all the calls to actual functions
      * and adds them to the list of keepers.
      * 
-     * @param call
+     * @param call   the call to look for
      */
     private void findKeepers(Call call)
     {
@@ -581,6 +694,12 @@ public class JSlim
         return calls.toArray(new Call[calls.size()]);
     }
     
+    /**
+     * Find all of the calls in the given function.
+     * 
+     * @param node   the node to look in
+     * @param calls  the list of calls to add the function to
+     */
     private void findCalls(Node node, List<Call> calls)
     {
         Iterator<Node> nodes = node.children().iterator();
@@ -611,6 +730,14 @@ public class JSlim
         }
     }
     
+    /**
+     * Find all of the function nodes which are children, direct or otherwise, of the 
+     * specified node.
+     * 
+     * @param parent the node to look for functions under
+     * 
+     * @return the array of functions found under this node (this array is never null)
+     */
     private Node[] findFunctions(Node parent)
     {
         ArrayList<Node> funcs = new ArrayList<Node>();
@@ -620,6 +747,15 @@ public class JSlim
         
     }
     
+    /**
+     * Find all of the function node which are children, direct or otherwise, of the
+     * specified node and add them to the specified list.
+     * 
+     * @param node   the node to for functions under
+     * @param funcs  the list of functions to add the references to
+     * 
+     * @return the array of functions found under this node (this array is never null)
+     */
     private Node findFunctions(Node node, List<Node> funcs)
     {
         Iterator<Node> nodes = node.children().iterator();
@@ -637,6 +773,14 @@ public class JSlim
         return node;
     }
     
+    /**
+     * Get a list of the names of all of the functions under this specific node.  This method
+     * does not recurse into all children, but is used for unravelling function changes.
+     * 
+     * @param n      the node to look under
+     * 
+     * @return the list of function names in this chaing
+     */
     private List<String> getFunctionNames(Node n)
     {
         /*
@@ -667,6 +811,14 @@ public class JSlim
         return names;
     }
     
+    /**
+     * Get the name of the function at the specified node if this node represents an
+     * interesting function.
+     * 
+     * @param n      the node to look under
+     * 
+     * @return the name of this function
+     */
     private String getFunctionName(Node n)
     {
         try {
@@ -739,16 +891,35 @@ public class JSlim
         return matches.toArray(new Node[matches.size()]);
     }
     
-    private void addExterns()
-    {
-        
-    }
-    
+    /**
+     * <p>
+     * Add an external reference to this compiler.  
+     * </p>
+     * 
+     * <p>
+     * There are some types of function reference which the compiler can't follow.  In those
+     * cases the calling code must either declare those functions as external references or
+     * they will be pruned from the tree.  This reference is just a simple string since 
+     * this processor doesn't handle object associations.
+     * </p>
+     * 
+     * @param extern the external reference to add
+     */
     public void addExtern(String extern)
     {
         m_calls.add(new Call(extern));
     }
     
+    /**
+     * Call the Google Closure Compiler to perform a plain compilation without any pruning.
+     * This is normally the last step after pruning.
+     * 
+     * @param name   the name of the file to compile
+     * @param code   the code contents of the file to compile
+     * @param level  the compilation level for this compile
+     * 
+     * @return the compiled contents
+     */
     public static String plainCompile(String name, String code, CompilationLevel level) {
         Compiler compiler = new Compiler();
         
@@ -799,21 +970,41 @@ public class JSlim
         return m_funcCount;
     }
     
+    /**
+     * Get the charset used by this compiler.
+     * 
+     * @return the charset
+     */
     public String getCharset()
     {
         return m_charset;
     }
     
+    /**
+     * Set the charset used by this compiler.
+     * 
+     * @param charset the charset
+     */
     public void setCharset(String charset)
     {
         m_charset = charset;
     }
     
+    /**
+     * Determine of this compiler should print out the AST tree.
+     * 
+     * @return true if it should print the tree and false otherwise
+     */
     public boolean shouldPrintTree()
     {
         return m_printTree;
     }
     
+    /**
+     * Set if this compiler should print the AST tree.
+     * 
+     * @param printTree true if it should print the tree and false otherwise
+     */
     public void setPrintTree(boolean printTree)
     {
         m_printTree = printTree;
@@ -830,6 +1021,15 @@ public class JSlim
         return m_errMgr;
     }
     
+    /**
+     * Write the specified file and a GZIPed file with the same name and a .gz extension.
+     * 
+     * @param contents the contents of the file
+     * @param file     the file location to write
+     * @param charset  the charset to use when writing the file
+     * 
+     * @exception IOException
+     */
     public static void writeGzip(String contents, File file, String charset)
         throws IOException
     {
