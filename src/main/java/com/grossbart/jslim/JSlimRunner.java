@@ -6,6 +6,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
 
 import com.google.common.collect.Lists;
 import com.google.javascript.jscomp.CompilationLevel;
@@ -64,6 +65,88 @@ public class JSlimRunner
         "WHITESPACE_ONLY, SIMPLE_OPTIMIZATIONS, ADVANCED_OPTIMIZATIONS")
     private SlimCompilationLevel m_compilationLevel = SlimCompilationLevel.SIMPLE_OPTIMIZATIONS;
     
+    private enum LogLevel {
+        ALL {
+            @Override
+            public Level getLevel()
+            {
+                return Level.ALL;
+            }
+        },
+
+        CONFIG {
+            @Override
+            public Level getLevel()
+            {
+                return Level.CONFIG;
+            }
+        },
+
+        FINE {
+            @Override
+            public Level getLevel()
+            {
+                return Level.FINE;
+            }
+        },
+
+        FINER {
+            @Override
+            public Level getLevel()
+            {
+                return Level.FINER;
+            }
+        },
+
+        FINEST {
+            @Override
+            public Level getLevel()
+            {
+                return Level.FINEST;
+            }
+        },
+
+        INFO {
+            @Override
+            public Level getLevel()
+            {
+                return Level.INFO;
+            }
+        },
+
+        OFF {
+            @Override
+            public Level getLevel()
+            {
+                return Level.OFF;
+            }
+        },
+
+        SEVERE {
+            @Override
+            public Level getLevel()
+            {
+                return Level.SEVERE;
+            }
+        },
+
+        WARNING {
+            @Override
+            public Level getLevel()
+            {
+                return Level.WARNING;
+            }
+        };
+        
+        public abstract Level getLevel();
+    }
+    
+    @Option(name = "--logging_level",
+        usage = "The logging level (standard java.util.logging.Level"
+        + " values) for Compiler progress. Does not control errors or"
+        + " warnings for the JavaScript code under compilation")
+    private LogLevel m_loggingLevel = LogLevel.WARNING;
+    
     @Option(name = "--js_output_file",
         usage = "Primary output filename. If not specified, output is " +
         "written to stdout")
@@ -112,11 +195,6 @@ public class JSlimRunner
     @Option(name = "--flagfile",
         usage = "A file containing additional command-line options.")
     private String m_flagFile = "";
-    
-    @Option(name = "--debug",
-        handler = BooleanOptionHandler.class,
-        usage = "Enable debugging options")
-    private boolean m_debug = false;
     
     private StringBuffer m_mainFiles = new StringBuffer();
     
@@ -210,10 +288,9 @@ public class JSlimRunner
     {
         JSlim slim = new JSlim();
         
-        if (m_debug) {
-            slim.showDebug();
-        }
+        slim.setLoggingLevel(m_loggingLevel.getLevel());
         
+        JSlim.getLogger().log(Level.INFO, "Compiling with character set " + m_charset);
         slim.setCharset(m_charset);
         slim.setPrintTree(m_printTree);
         
@@ -253,6 +330,7 @@ public class JSlimRunner
              Then we run the results through the normal compilation process
              to make them even smaller
              */
+            JSlim.getLogger().log(Level.INFO, "Starting closure compile with compile level " + level);
             result = JSlim.plainCompile(m_output, result, level);
         }
         
@@ -263,13 +341,17 @@ public class JSlimRunner
             System.out.println(result);
         } else {
             File out = new File(m_output).getAbsoluteFile();
-            System.out.println("out: " + out);
+            JSlim.getLogger().log(Level.INFO, "Writing to file " + out);
             if (!out.getParentFile().exists()) {
-                System.err.println("The specified output directory " + out.getParent() + " does not exist");
+                JSlim.getLogger().log(Level.SEVERE, 
+                                      "The specified output directory " + out.getParent() + " does not exist");
                 return;
             }
             
+            FileUtils.writeStringToFile(out, result);
+            
             if (!m_skipGzip) {
+                JSlim.getLogger().log(Level.INFO, "Writing GZIPed file");
                 JSlim.writeGzip(result, out, m_charset);
             }
         }
@@ -305,6 +387,12 @@ public class JSlimRunner
             
             if (m_combine && !isLib) {
                 m_mainFiles.append(contents + "\n");
+            }
+            
+            if (isLib) {
+                JSlim.getLogger().log(Level.INFO, "Adding library file: " + f.getAbsoluteFile());
+            } else {
+                JSlim.getLogger().log(Level.INFO, "Adding main file: " + f.getAbsoluteFile());
             }
             
             slim.addSourceFile(new JSFile(f.getName(), contents, isLib));

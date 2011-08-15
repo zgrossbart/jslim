@@ -4,10 +4,14 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.io.FileUtils;
@@ -29,6 +33,33 @@ import com.google.javascript.rhino.Token;
  */
 public class JSlim 
 {
+    private static final Logger LOGGER = Logger.getLogger(JSlim.class.getName());
+    
+    static {
+        LOGGER.setUseParentHandlers(false);
+        LOGGER.addHandler(new SlimConsoleHandler());
+    }
+    
+    /**
+     * Set the logging level for this process.  Most messages only show up with INFO logging.
+     * 
+     * @param level  the log level
+     */
+    public static void setLoggingLevel(Level level)
+    {
+        LOGGER.setLevel(level);
+    }
+    
+    /**
+     * Get the logger for this compile process.
+     * 
+     * @return the logger
+     */
+    public static Logger getLogger()
+    {
+        return LOGGER;
+    }
+    
     private List<Node> m_vars = new ArrayList<Node>();
     private List<Call> m_calls = new ArrayList<Call>();
     private List<Call> m_examinedCalls = new ArrayList<Call>();
@@ -45,28 +76,6 @@ public class JSlim
     
     private String m_charset = "UTF-8";
     private boolean m_printTree = false;
-    
-    private boolean m_debug = false;
-    
-    /**
-     * Set this class to show debugging messages.
-     */
-    public void showDebug()
-    {
-        m_debug = true;
-    }
-    
-    /**
-     * Print a message to System.out if debugging is enabled.
-     * 
-     * @param msg    the message to print
-     */
-    private void println(String msg)
-    {
-        if (m_debug) {
-            System.out.println(msg);
-        }
-    }
     
     /**
      * Add the library contents to the compiler and prune them.
@@ -178,32 +187,36 @@ public class JSlim
 
         Node node = compiler.getRoot();
         if (m_printTree) {
+            System.out.println("Tree before pruning:");
             System.out.println(node.toStringTree());
         }
         
         //System.out.println("node before change: " + compiler.toSource());
         
-        println("starting process...");
+        LOGGER.log(Level.INFO, "starting process...");
         Node n = process(node, isLib);
         
-        println("Done processing...");
-        println("m_calls: " + m_calls);
+        LOGGER.log(Level.INFO, "Done processing...");
+        LOGGER.log(Level.INFO, "m_calls: " + m_calls);
         
         m_funcCount = m_libFuncs.size();
         
         if (isLib) {
-            println("Starting pruneTree phase 1.");
+            LOGGER.log(Level.INFO, "Starting pruneTree phase 1.");
             pruneTree();
             
-            println("Starting pruneTree phase 2.");
+            LOGGER.log(Level.INFO, "Starting pruneTree phase 2.");
             pruneTree();
         }
         
-        println("Removed " + (m_funcCount - m_keepers.size()) + " out of " + m_funcCount + " named functions.");
+        if (m_funcCount > 0) {
+            System.out.println("Removed " + (m_funcCount - m_keepers.size()) + " out of " + m_funcCount + " named functions.");
+        }
         
-        //println("n: " + n.toStringTree());
-        
-        //println("n.toString(): \n" + n.toStringTree());
+        if (m_printTree) {
+            System.out.println("Tree after pruning:");
+            System.out.println(node.toStringTree());
+        }
         
         // The compiler is responsible for generating the compiled code; it is not
         // accessible via the Result.
@@ -484,7 +497,7 @@ public class JSlim
         } else if (call.getFirstChild().getType() == Token.NAME) {
             Node name = call.getFirstChild();
             addCall(name.getString(), calls);
-            println("name.getString(): " + name.getString());
+            LOGGER.log(Level.INFO, "name.getString(): " + name.getString());
         }
     }
     
@@ -499,13 +512,13 @@ public class JSlim
             findKeepers(call);
         }
         
-        println("m_keepers: " + m_keepers);
+        LOGGER.log(Level.INFO, "m_keepers: " + m_keepers);
         
         for (int i = m_libFuncs.size() - 1; i > -1; i--) {
             Node func = m_libFuncs.get(i);
             
             if (getFunctionName(func).equals("isString")) {
-                println("m_keepers.contains(func): " + m_keepers.contains(func));
+                LOGGER.log(Level.INFO, "m_keepers.contains(func): " + m_keepers.contains(func));
             }
             
             if (!m_keepers.contains(func)) {
@@ -515,9 +528,9 @@ public class JSlim
             }
         }
         
-        println("Keeping the following functions:");
+        LOGGER.log(Level.INFO, "Keeping the following functions:");
         for (Node f : m_libFuncs) {
-            println("func: " + getFunctionName(f));
+            LOGGER.log(Level.INFO, "func: " + getFunctionName(f));
         }
     }
     
@@ -533,15 +546,10 @@ public class JSlim
         Call calls[] = findCalls(func);
         for (Call call : calls) {
             Call orig = getCall(call.getName(), m_calls);
-            if (call.getName().equals("isString")) {
-                println("issString orig: " + orig);
-                println("issString call: " + call);
-            }
-            
             orig.decCount(call.getCount());
             
             if (orig.getCount() < 1) {
-                println("removing called keeper: " + orig);
+                LOGGER.log(Level.INFO, "removing called keeper: " + orig);
                 Node f = findFunction(orig.getName());
                 if (f != null) {
                     m_keepers.remove(f);
@@ -589,7 +597,7 @@ public class JSlim
      */
     private void removeFunction(Node n)
     {
-        println("removeFunction(" + getFunctionName(n) + ")");
+        LOGGER.log(Level.INFO, "removeFunction(" + getFunctionName(n) + ")");
         
         if (n.getParent() == null || n.getParent().getParent() == null) {
             /*
@@ -612,7 +620,7 @@ public class JSlim
              */
             Node expr = findExprOrVar(n);
             if (expr != null && expr.getType() == Token.EXPR_RESULT && expr.getParent() != null) {
-                println("expr: " + expr);
+                LOGGER.log(Level.INFO, "expr: " + expr);
                 expr.detachFromParent();
             }
         } else {
@@ -663,7 +671,7 @@ public class JSlim
         
         //call.incCount();
         
-        println("findKeepers(" + call + ")");
+        LOGGER.log(Level.INFO, "findKeepers(" + call + ")");
         
         m_examinedCalls.add(call);
         
@@ -672,7 +680,7 @@ public class JSlim
             
         for (Node func : funcs) {
             m_keepers.add(func);
-            println("func: " + getFunctionName(func));
+            LOGGER.log(Level.INFO, "func: " + getFunctionName(func));
             
             for (Call c : findCalls(func)) {
                 findKeepers(c);
@@ -865,7 +873,7 @@ public class JSlim
                 return n.getFirstChild().getString();
             }
         } catch (Exception e) {
-            println("npe: " + n.toStringTree());
+            LOGGER.log(Level.INFO, "npe: " + n.toStringTree());
             e.printStackTrace();
             throw new RuntimeException("stop here...");
         }
@@ -922,6 +930,11 @@ public class JSlim
      */
     public static String plainCompile(String name, String code, CompilationLevel level) {
         Compiler compiler = new Compiler();
+        
+        compiler.setLoggingLevel(LOGGER.getLevel());
+        
+        Logger.getLogger("com.google.javascript.jscomp").setUseParentHandlers(false);
+        Logger.getLogger("com.google.javascript.jscomp").addHandler(new SlimConsoleHandler());
         
         CompilerOptions options = new CompilerOptions();
         // Advanced mode is used here, but additional options could be set, too.
@@ -1033,8 +1046,6 @@ public class JSlim
     public static void writeGzip(String contents, File file, String charset)
         throws IOException
     {
-        FileUtils.writeStringToFile(file, contents);
-        
         FileOutputStream out = new FileOutputStream(new File(file.getParentFile(), file.getName() + ".gz"));
         
         try {
@@ -1081,5 +1092,13 @@ public class JSlim
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+}
+
+class SlimConsoleHandler extends ConsoleHandler
+{
+    protected void setOutputStream(OutputStream out) throws SecurityException
+    {
+        super.setOutputStream(System.out); // kitten killed here :-(
     }
 }
