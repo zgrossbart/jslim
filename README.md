@@ -11,7 +11,7 @@ Once you've built the project you can use it to do what it does (notice how I di
 
         build/install/jslim/bin/jslim --js_output_file out.js --js main.js --lib_js libs/jquery-1.6.2.js --lib_js libs/underscore.js
 
-We're working on it :).
+We're working on it.
 
 License
 --------------------------------------
