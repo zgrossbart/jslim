@@ -1,4 +1,4 @@
-Prune - It's your favorite JavaScript library, only faster
+JSlim - It's your favorite JavaScript library, only faster
 ==================================================
 
 This is a project for doing something really cool with JavaScript which doesn't work yet.  Right now this project is just for people actively developing this code and it won't even build for you.  
