@@ -3,7 +3,6 @@ package com.grossbart.jslim;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
@@ -13,9 +12,6 @@ import com.google.javascript.jscomp.CompilationLevel;
 import com.google.javascript.jscomp.ErrorManager;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-
-import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
@@ -30,6 +26,10 @@ public class JSlimRunner
     @Option(name = "--help", handler = BooleanOptionHandler.class, usage = "Displays this message")
     private boolean m_displayHelp = false;
     
+    /**
+     * This enumeration handles the compile level arguments.  It also introduces a new
+     * argument to skip the Closure Compiler compilation.
+     */
     private enum SlimCompilationLevel {
         
       /**
@@ -65,6 +65,10 @@ public class JSlimRunner
         "WHITESPACE_ONLY, SIMPLE_OPTIMIZATIONS, ADVANCED_OPTIMIZATIONS")
     private SlimCompilationLevel m_compilationLevel = SlimCompilationLevel.SIMPLE_OPTIMIZATIONS;
     
+    /**
+     * This enumeration handles all of the log level argument for the command line of 
+     * this application.
+     */
     private enum LogLevel {
         ALL {
             @Override
@@ -142,9 +146,8 @@ public class JSlimRunner
     }
     
     @Option(name = "--logging_level",
-        usage = "The logging level (standard java.util.logging.Level"
-        + " values) for Compiler progress. Does not control errors or"
-        + " warnings for the JavaScript code under compilation")
+        usage = "The logging level (standard java.util.logging.Level values) for Compiler progress. " + 
+            "Does not control errors or warnings for the JavaScript code under compilation")
     private LogLevel m_loggingLevel = LogLevel.WARNING;
     
     @Option(name = "--js_output_file",
@@ -156,14 +159,10 @@ public class JSlimRunner
         usage = "The javascript filename. You may specify multiple")
     private List<String> m_js = Lists.newArrayList();
     
-    @Option(name = "--lib_js",
-        usage = "The javascript library filename. You may specify multiple",
-        required=true)
+    @Option(name = "--lib_js", usage = "The javascript library filename. You may specify multiple", required = true)
     private List<String> m_libJs = Lists.newArrayList();
     
-    @Option(name = "--externs",
-        usage = "The file containing javascript externs. You may specify"
-        + " multiple")
+    @Option(name = "--externs", usage = "The file containing javascript externs. You may specify multiple")
     private List<String> m_externs = Lists.newArrayList();
     
     @Option(name = "--charset",

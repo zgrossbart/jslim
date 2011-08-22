@@ -14,9 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPOutputStream;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import com.google.common.collect.Lists;
 
 import com.google.javascript.jscomp.CompilationLevel;
 import com.google.javascript.jscomp.Compiler;
@@ -157,7 +155,8 @@ public class JSlim
      * 
      * @return The compiled version of the code.
      */
-    private String slim(String code, boolean isLib) {
+    private String slim(String code, boolean isLib)
+    {
         Compiler compiler = new Compiler();
 
         CompilerOptions options = new CompilerOptions();
@@ -232,7 +231,8 @@ public class JSlim
      * 
      * @return the original node reference
      */
-    private Node process(Node node, boolean isLib) {
+    private Node process(Node node, boolean isLib)
+    {
         Iterator<Node> nodes = node.children().iterator();
         
         while (nodes.hasNext()) {
@@ -504,7 +504,8 @@ public class JSlim
     /**
      * Use all the collected information to prune the tree and remove unused functions.
      */
-    private void pruneTree() {
+    private void pruneTree()
+    {
         m_allFuncs.addAll(m_funcs);
         m_allFuncs.addAll(m_libFuncs);
         
@@ -928,7 +929,8 @@ public class JSlim
      * 
      * @return the compiled contents
      */
-    public static String plainCompile(String name, String code, CompilationLevel level) {
+    public static String plainCompile(String name, String code, CompilationLevel level)
+    {
         Compiler compiler = new Compiler();
         
         compiler.setLoggingLevel(LOGGER.getLevel());
@@ -1044,7 +1046,7 @@ public class JSlim
      * @param file     the file location to write
      * @param charset  the charset to use when writing the file
      * 
-     * @exception IOException
+     * @exception IOException if there is an error writing the GZIPed file
      */
     public static void writeGzip(String contents, File file, String charset)
         throws IOException
@@ -1063,7 +1065,7 @@ public class JSlim
         }
     }
     
-    public static void main(String[] args)
+    /*public static void main(String[] args)
     {
         try {
             JSlim slim = new JSlim();
@@ -1095,13 +1097,18 @@ public class JSlim
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+    }*/
 }
 
+
+/**
+ * This little console handler makes it possible to send Java logging to System.out 
+ * instead of System.err.
+ */
 class SlimConsoleHandler extends ConsoleHandler
 {
     protected void setOutputStream(OutputStream out) throws SecurityException
     {
-        super.setOutputStream(System.out); // kitten killed here :-(
+        super.setOutputStream(System.out);
     }
 }

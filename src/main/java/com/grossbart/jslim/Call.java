@@ -10,6 +10,11 @@ public class Call
     private int m_count = 1;
     private String m_name;
     
+    /**
+     * Create a new Call object.
+     * 
+     * @param name   the name of this call
+     */
     public Call(String name)
     {
         m_name = name;
@@ -54,7 +59,8 @@ public class Call
      */
     public int decCount(int dec)
     {
-        return m_count -= dec;
+        m_count -= dec;
+        return m_count;
     }
     
     /**
@@ -67,6 +73,7 @@ public class Call
         return m_name;
     }
     
+    @Override
     public String toString()
     {
         return m_name + ": " + m_count;

@@ -56,6 +56,7 @@ public class JSFile
         return m_isLib;
     }
     
+    @Override
     public String toString()
     {
         return "JSFile: " + m_name;

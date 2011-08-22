@@ -6,13 +6,20 @@ import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import com.google.javascript.jscomp.DiagnosticType;
-import com.google.javascript.jscomp.JSError;
+/**
+ * This test class covers the full unit tests for JSlim.
+ */
+public class JSlimTest
+{
 
-
-public class JSlimTest {
+    /**
+     * The basic compile test does a simple compile.
+     * 
+     * @exception IOException if there is any error reading the sample file
+     */
     @Test
     public void basicCompileTest()
         throws IOException
@@ -25,6 +32,11 @@ public class JSlimTest {
         assertEquals("func1", funcs[0]);
     }
     
+    /**
+     * Tests for functional property assignment.
+     * 
+     * @exception IOException if there is any error reading the sample file
+     */
     @Test
     public void funcPropsTest()
         throws IOException
@@ -37,6 +49,11 @@ public class JSlimTest {
         assertEquals("func1", funcs[0]);
     }
     
+    /**
+     * Test function assignments.
+     * 
+     * @exception IOException if there is any error reading the sample file
+     */
     @Test
     public void assignmentTest()
         throws IOException
@@ -49,6 +66,11 @@ public class JSlimTest {
         assertEquals("func2", funcs[0]);
     }
     
+    /**
+     * Test function arguments.
+     * 
+     * @exception IOException if there is any error reading the sample file
+     */
     @Test
     public void argumentTest()
         throws IOException
@@ -61,6 +83,11 @@ public class JSlimTest {
         assertEquals("func2", funcs[0]);
     }
     
+    /**
+     * Test functions by reference.
+     * 
+     * @exception IOException if there is any error reading the sample file
+     */
     @Test
     public void referenceTest()
         throws IOException
@@ -73,6 +100,11 @@ public class JSlimTest {
         assertEquals("func2", funcs[0]);
     }
     
+    /**
+     * Test functions by reference chain
+     * 
+     * @exception IOException if there is any error reading the sample file
+     */
     @Test
     public void referenceChainTest()
         throws IOException
@@ -85,6 +117,11 @@ public class JSlimTest {
         assertEquals("func2", funcs[0]);
     }
     
+    /**
+     * Test functions as returned objects.
+     * 
+     * @exception IOException if there is any error reading the sample file
+     */
     @Test
     public void functionReturnTest()
         throws IOException
@@ -105,6 +142,11 @@ public class JSlimTest {
         assertEquals("func2", funcs[0]);
     }
     
+    /**
+     * Check the other type of functions as returned objects.
+     * 
+     * @exception IOException if there is any error reading the sample file
+     */
     @Test
     public void functionReturn2Test()
         throws IOException
@@ -125,6 +167,11 @@ public class JSlimTest {
         assertTrue("The func2 function should still be in the output", out.indexOf("func2") > -1);
     }
     
+    /**
+     * Test inline functions.
+     * 
+     * @exception IOException if there is any error reading the sample file
+     */
     @Test
     public void inlineFunctionReturnTest()
         throws IOException
@@ -142,6 +189,11 @@ public class JSlimTest {
         assertTrue("The newf function should still be in the output", out.indexOf("newf") > -1);
     }
     
+    /**
+     * Test functions assigned to a reference array.
+     * 
+     * @exception IOException if there is any error reading the sample file
+     */
     @Test
     public void functionRefArrayTest()
         throws IOException
@@ -154,6 +206,11 @@ public class JSlimTest {
         assertEquals("func1", funcs[0]);
     }
     
+    /**
+     * Test a property assignment chain.
+     * 
+     * @exception IOException if there is any error reading the sample file
+     */
     @Test
     public void propertyAssignmentChainTest()
         throws IOException
@@ -171,6 +228,11 @@ public class JSlimTest {
         assertTrue("The func1 function should still be in the output", out.indexOf("func1") > -1);
     }
     
+    /**
+     * Check a file with a parse error.
+     * 
+     * @exception IOException if there is any error reading the sample file
+     */
     @Test
     public void parseErrorTest()
         throws IOException
