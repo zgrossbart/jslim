@@ -946,6 +946,9 @@ public class JSlim
         
         // The dummy input name "input.js" is used here so that any warnings or
         // errors will cite line numbers in terms of input.js.
+        if (name == null) {
+            name = "System.out.js";
+        }
         JSSourceFile input = JSSourceFile.fromCode(name, code);
     
         // compile() returns a Result, but it is not needed here.
