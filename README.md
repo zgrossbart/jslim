@@ -130,7 +130,9 @@ Most JavaScript compressors take your JavaScript and make it smaller by removing
 How stable is JSlim?
 --------------------------------------
 
-The short answer is that JSlim isn't very stable at all yet.  You still need to build it yourself and it requires a development version of the [Google Closure Compiler](http://code.google.com/closure/compiler/).  I've tested JSlim with the following libraries:
+The short answer is that JSlim isn't very stable at all yet.  You still need to build it yourself and it requires a development version of the [Google Closure Compiler](http://code.google.com/closure/compiler/).  
+
+I've tested JSlim with the following libraries:
 
 * [JQuery](http://jquery.com/)
 * [JQuery UI](http://jqueryui.com/)
@@ -139,6 +141,8 @@ The short answer is that JSlim isn't very stable at all yet.  You still need to 
 * [Prototype](http://www.prototypejs.org/)
 * [Raphaël](http://raphaeljs.com/)
 * [underscore.js](http://documentcloud.github.com/underscore/)
+
+JSlim should work with any library.  It can also work directly with your JavaScript.  Write many functions in your code and then use JSlim to prune out all the functions aren't actually calling.  
 
 JSlim roadmap
 --------------------------------------
