@@ -550,7 +550,7 @@ public class JSlim
             orig.decCount(call.getCount());
             
             if (orig.getCount() < 1) {
-                LOGGER.log(Level.FINE, "removing called keeper: " + orig);
+                LOGGER.log(Level.INFO, "removing called keeper: " + orig);
                 Node f = findFunction(orig.getName());
                 if (f != null) {
                     m_keepers.remove(f);

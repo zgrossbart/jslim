@@ -57,7 +57,7 @@ public class JSlimRunner
        * NONE only prunes the library classes and doesn't run the closure compiler on 
        * the resulting JavaScript file. 
        */
-      SKIP
+      NONE
     }
     
     @Option(name = "--compilation_level",
