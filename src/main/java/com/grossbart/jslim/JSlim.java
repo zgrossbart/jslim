@@ -916,7 +916,9 @@ public class JSlim
      */
     public void addExtern(String extern)
     {
-        m_calls.add(new Call(extern));
+        if (extern != null && extern.trim().length() > 0) {
+            m_calls.add(new Call(extern));
+        }
     }
     
     /**
