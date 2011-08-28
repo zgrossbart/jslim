@@ -20,34 +20,59 @@ Using JSlim
 <pre><code>
 java JSlimRunner [options...] arguments...
 
- --charset VAL                          : Input and output charset for all files. By default, we accept UTF-8 as input and output US_ASCII
- --combine_files                        : Pass this argument to combine the library files and the regular files into a single output file.
- --compilation_level [WHITESPACE_ONLY | : Specifies the compilation level to use. 
-  SIMPLE_OPTIMIZATIONS | ADVANCED_OPTIM : Options: WHITESPACE_ONLY, SIMPLE_OPT IMIZATIONS, ADVANCED_OPTIMIZATIONS
- IZATIONS | NONE]                       
- --externs VAL                          : The file containing javascript externs. You may specify multiple.
- --flagfile VAL                         : A file containing additional command-line options.
+ --charset VAL                          : Input and output charset for all files
+                                          . By default, we accept UTF-8 as input
+                                           and output US_ASCII
+ --combine_files                        : Pass this argument to combine the libr
+                                          ary files and the regular files into a
+                                           single output file.
+ --compilation_level [WHITESPACE_ONLY | : Specifies the compilation level to use
+  SIMPLE_OPTIMIZATIONS | ADVANCED_OPTIM : . Options: WHITESPACE_ONLY, SIMPLE_OPT
+ IZATIONS | NONE]                       : IMIZATIONS, ADVANCED_OPTIMIZATIONS
+ --externs VAL                          : The file containing javascript externs
+                                          . You may specify multiple
+ --flagfile VAL                         : A file containing additional command-l
+                                          ine options.
  --help                                 : Displays this message
- --js VAL                               : The javascript filename. You may specify multiple
- --js_output_file VAL                   : Primary output filename. If not specified, output is written to stdout
- --lib_js VAL                           : The javascript library filename. You may specify multiple
- --logging_level [ALL | CONFIG | FINE | : The logging level (standard java.util.logging.Level values) for Compiler progress. Does not control errors or warnings for the JavaScript code under compilation
-  FINER | FINEST | INFO | OFF | SEVERE  
- | WARNING]                              
- --no_validate                          : Pass this argument to skip the pre-parse file validation step.  This is faster, but won't provide good error messages if the input files are invalid JavaScript.
+ --js VAL                               : The javascript filename. You may speci
+                                          fy multiple
+ --js_output_file VAL                   : Primary output filename. If not specif
+                                          ied, output is written to stdout
+ --lib_js VAL                           : The javascript library filename. You m
+                                          ay specify multiple
+ --logging_level [ALL | CONFIG | FINE | : The logging level (standard java.util.
+  FINER | FINEST | INFO | OFF | SEVERE  : logging.Level values) for Compiler pro
+ | WARNING]                             : gress. Does not control errors or warn
+                                          ings for the JavaScript code under com
+                                          pilation
+ --no_validate                          : Pass this argument to skip the pre-par
+                                          se file validation step.  This is fast
+                                          er, but won't provide good error messa
+                                          ges if the input files are invalid Jav
+                                          aScript.
  --print_tree                           : Prints out the parse tree and exits
  --skip_gzip                            : Skip GZIPing the results
-
 </code></pre>
 
 This repository includes a number of sample application you can use to try JSlim with.  The easiest place to start is with a simple JQuery/userscore.js.  You can slim it like this:
 
         build/install/jslim/bin/jslim --js_output_file out.js --js main.js --lib_js libs/jquery-1.6.2.js --lib_js libs/underscore.js
+        
+Once that command is done you can open the index.html file in your favorite browser and see this output:
+
+<pre><code>
+2,4,6,8
+Miaow my name is Charlie
+Miaow my name is Fluffy
+Miaow my name is Mouse
+</code></pre>
+
+This process will remove 81 out of 237 named functions (34 percent) and reduce the total size of the library files by 26 percent.
 
 How JSlim works
 --------------------------------------
 
-JavaScript organizes blocks of code into functions.  Some functions are named ans stand alone like this:
+JavaScript organizes blocks of code into functions.  Some functions are named and stand alone like this:
 
 <pre><code>
 function myFunction() {
