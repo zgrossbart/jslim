@@ -151,7 +151,7 @@ In the short term I'm focusing on improvements to the core compilation process. 
 
 I also want to write JSlim plugins for Apache Ant and Apache Maven.  That way you can run JSlim as part of your build.  I'm still working on it.
 
-I'd also like to thank the [Google Closure Compiler](http://code.google.com/closure/compiler/) for all of their help, support, encouragement, and excellent compiler.  JSlim stands on the shoulders of the Closure Compiler.
+I'd also like to thank the [Google Closure Compiler](http://code.google.com/closure/compiler/) team for all of their help, support, encouragement, and excellent compiler.  JSlim stands on the shoulders of the Closure Compiler.
 
 Feedback
 --------------------------------------
