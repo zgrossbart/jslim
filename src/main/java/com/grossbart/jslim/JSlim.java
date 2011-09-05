@@ -76,15 +76,16 @@ public class JSlim
     private boolean m_printTree = false;
     
     /**
-     * Add the library contents to the compiler and prune them.
+     * `Add the library contents to the compiler and prune them.
      * 
+     * @param name   the file name of the added library
      * @param code   the code contents
      * 
      * @return the pruned file
      */
-    protected String addLib(String code)
+    protected String addLib(String name, String code)
     {
-        return slim(code, true);
+        return slim(name, code, true);
     }
     
     /**
@@ -110,11 +111,11 @@ public class JSlim
             if (file.isLib()) {
                 sb.append(file.getContent() + "\n");
             } else {
-                slim(file.getContent(), false);
+                slim(file.getName(), file.getContent(), false);
             }
         }
         
-        return addLib(sb.toString());
+        return addLib("combined_lib.js", sb.toString());
     }
     
     /**
@@ -150,12 +151,13 @@ public class JSlim
     /**
      * Parse, compile, and slim the specified code
      * 
+     * @param name   the name of the file to slim
      * @param code   JavaScript source code to compile.
      * @param isLib  true if this is a library file and false otherwise
      * 
      * @return The compiled version of the code.
      */
-    private String slim(String code, boolean isLib)
+    private String slim(String name, String code, boolean isLib)
     {
         Compiler compiler = new Compiler();
 
@@ -169,7 +171,7 @@ public class JSlim
 
         // The dummy input name "input.js" is used here so that any warnings or
         // errors will cite line numbers in terms of input.js.
-        JSSourceFile input[] = {JSSourceFile.fromCode("input.js", code)};
+        JSSourceFile input[] = {JSSourceFile.fromCode(name, code)};
 
         compiler.init(extern, input, options);
 
