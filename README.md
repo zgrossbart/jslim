@@ -90,7 +90,7 @@ var myObj = {
 };
 </code></pre>
 
-JSlim figures out which functions your code is calling and which functions they're calling.  Then it removes all of the functions which aren't being used.  
+JavaScript libraries provide functions like that and you call them in your code.  JSlim figures out which functions you're call, and which ones they're calling, and removes the rest.  
 
 JSlim can track most function calls, but there are some where it can't follow what you're calling.  The easiest way to break JSlim is using the [eval](http://en.wikipedia.org/wiki/Eval#JavaScript) function like this:
 
@@ -142,7 +142,7 @@ I've tested JSlim with the following libraries:
 * [Raphaël](http://raphaeljs.com/)
 * [underscore.js](http://documentcloud.github.com/underscore/)
 
-JSlim should work with any library.  It can also work directly with your JavaScript.  Write many functions in your code and then use JSlim to prune out all the functions aren't actually calling.  
+JSlim should work with any library.  It can also work directly with your JavaScript.  Write as many functions as you want and JSlim will prune out the unused ones so your code stays small and your site stays fast.  
 
 JSlim roadmap
 --------------------------------------
