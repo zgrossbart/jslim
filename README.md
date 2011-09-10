@@ -127,25 +127,27 @@ JSlim looks at this code and determines that <code>f1</code> is called, but <cod
 How much does JSlim save?
 --------------------------------------
 
-JSlim works very differently depending on the library it is slimming down.  The more a library uses named functions with discrete blocks and clean hierarchy the more we can slim it down.  
+JSlim works very differently depending on the library it's slimming down.  The more a library uses named functions with simple dependencies and clean hierarchy the more we can slim it down.  
 
-JSlim doesn't work well with libraries uses mostly anonymous functions and other constructs which are difficult to track down.  JSlim is also strictly a [static code analysis](http://en.wikipedia.org/wiki/Static_code_analysis) tool which means it doesn't run any JavaScript code.  
+JSlim doesn't work well with libraries using mostly anonymous functions and other constructs which are difficult to track down.  JSlim is also strictly a [static code analysis](http://en.wikipedia.org/wiki/Static_code_analysis) tool which means it doesn't run any JavaScript code.  
 
 For example, if your code looks like this:
 
 <pre><code>
-if (value === 1) {
-    alert($.now());
-} else if (value === 2) {
-    $.noop();
+function f(flag) {
+    if (value === 1) {
+        alert($.now());
+    } else if (value === 2) {
+        $.noop();
+    }
 }
 </code></pre>
 
-In this case JSlim will keep the `now` function and the `noop` function since it can't tell what values might be passed.  
+...JSlim will keep the `now` function and the `noop` function since it can't tell what the value of flag might be.
 
-JSlim is with a simple JQuery/underscore.js application where it reduces the total size of the libraries by 26%.  Most libraries are reduced by 10-20 percent, but the savings in total size is only part of the story.
+JSlim is best with a simple JQuery/underscore.js application where it reduces the total size of the libraries by 26% above using the Closure compiler and GZIPing.  Most libraries are reduced by 10-20 percent, but the savings in total size is only part of the story.
 
-Most JavaScript compressors take your JavaScript and make it smaller by removing whitespace and comments and inlining functions.  JSlim actually removes code which reduces [computational complexity](http://en.wikipedia.org/wiki/Computational_complexity_theory).  The means your libraries aren't just smaller, but they actually run faster.
+Most JavaScript compressors make it smaller by removing whitespace and comments and inlining functions.  JSlim actually removes code which reduces [computational complexity](http://en.wikipedia.org/wiki/Computational_complexity_theory).  The means your libraries aren't just smaller, but they actually run faster.
 
 How stable is JSlim?
 --------------------------------------
