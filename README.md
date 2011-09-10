@@ -173,6 +173,11 @@ I also want to write JSlim plugins for Apache Ant and Apache Maven.  That way yo
 
 I'd also like to thank the [Google Closure Compiler](http://code.google.com/closure/compiler/) team for all of their help, support, encouragement, and excellent compiler.  JSlim stands on the shoulders of the Closure Compiler.
 
+Why does JSlim build with Gradle?
+--------------------------------------
+
+JSlim could build with [Ant](http://ant.apache.org) or [Maven](http://maven.apache.org), but I wanted a new project to try out [Gradle](http://www.gradle.org).  I stuck with Gradle because it's awesome.  Check out my 22 line gradle.build file.
+
 Feedback
 --------------------------------------
 
