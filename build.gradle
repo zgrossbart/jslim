@@ -1,13 +1,12 @@
-defaultTasks "build", "installApp"
+defaultTasks 'build', 'distZip2'
 
 apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'code-quality'
 
 mainClassName = "com.grossbart.jslim.JSlimRunner"
-applicationName = "JSlim"
+applicationName = "jslim"
 checkstyleConfigFileName = 'checkstyle_checks.xml'
-
 
 /*
  * Now we define our application
@@ -33,5 +32,31 @@ dependencies {
 jar {
     manifest {
         attributes 'Main-Class': 'com.grossbart.jslim.JSlim'
+    }
+}
+
+/*
+ * This task builds a single zip file containing our JAR, all
+ * the JARs our JAR depends on, and some scripts to run the program.
+ * It works just like the distZip from the Application plugin, but
+ * it adds our license and README file to the root of the distribution
+ * zip file.
+ */
+task distZip2(dependsOn: installApp, type: Zip) {
+    from(jar.outputs.files) {
+        into('lib')
+    }
+    
+    from(project.configurations.runtime) {
+        into('lib')
+    }
+    
+    from(startScripts.outputs.files) {
+        into('bin')
+    }
+
+    from('.') {
+        include 'LICENSE.txt'
+        include 'README.md'
     }
 }
