@@ -5,7 +5,9 @@ apply plugin: 'application'
 apply plugin: 'code-quality'
 
 mainClassName = "com.grossbart.jslim.JSlimRunner"
+applicationName = "JSlim"
 checkstyleConfigFileName = 'checkstyle_checks.xml'
+
 
 /*
  * Now we define our application
