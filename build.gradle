@@ -4,8 +4,8 @@ apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'code-quality'
 
-mainClassName = "com.grossbart.jslim.JSlimRunner"
-applicationName = "jslim"
+mainClassName = 'com.grossbart.jslim.JSlimRunner'
+applicationName = 'jslim'
 checkstyleConfigFileName = 'checkstyle_checks.xml'
 
 /*
