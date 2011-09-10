@@ -21,8 +21,8 @@ repositories {
  * We specify our dependencies
  */
 dependencies {
-  compile files('../../tmp/closure-compiler/build/compiler.jar')
-  //compile group: 'com.google.javascript', name: 'closure-compiler', version: 'r1043'
+  //compile files('../../tmp/closure-compiler/build/compiler.jar')
+  compile group: 'com.google.javascript', name: 'closure-compiler', version: 'r1352'
   compile group: 'args4j', name: 'args4j', version: '2.0.12'
   compile group: 'commons-io', name: 'commons-io', version: '2.0.1'
   testCompile group: 'junit', name: 'junit', version: '4.+'
