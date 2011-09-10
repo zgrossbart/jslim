@@ -109,7 +109,7 @@ Let's say you write some JavaScript which looks like this:
 
 <pre><code>
 
-obj1 = {
+o = {
     f1: function() {
         alert("I'm func 1");
     },
@@ -119,7 +119,7 @@ obj1 = {
     }
 };
 
-obj1.f1();
+o.f1();
 </code></pre>
 
 JSlim looks at this code and determines that <code>f1</code> is called, but <code>f2</code> isn't.  In this case it will remove <code>f2</code> and make the code smaller and faster.  If you start using <code>f2</code> just run JSlim again and it will create a new library with it included.
