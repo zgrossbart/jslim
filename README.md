@@ -3,7 +3,7 @@
 
 JSlim is a JavaScript optimizer based on the [Google Closure Compiler](http://code.google.com/closure/compiler/), but instead of optimizing your code it optimizes the code you use.  
 
-Most websites use JavaScript libraries like [JQuery](http://jquery.com/) or [Prorotype](http://www.prototypejs.org/), but they don't use the whole library.  JSlim builds you a new version of your favorite JavaScript library with only the code you're using.
+Most websites use JavaScript libraries like [JQuery](http://jquery.com/) or [Prototype](http://www.prototypejs.org/), but they don't use the whole library.  JSlim builds you a new version of your favorite JavaScript library with only the code you're using.
 
 Building JSlim
 --------------------------------------
@@ -122,7 +122,7 @@ obj1 = {
 obj1.f1();
 </code></pre>
 
-JSlim looks at this code and detrmines that <code>f1</code> is called, but <code>f2</code> isn't.  In this case it will remove <code>f2</code> and make the code smaller and faster.  If you start using <code>f2</code> just run JSlim again and it will create a new library with it included.
+JSlim looks at this code and determines that <code>f1</code> is called, but <code>f2</code> isn't.  In this case it will remove <code>f2</code> and make the code smaller and faster.  If you start using <code>f2</code> just run JSlim again and it will create a new library with it included.
 
 How much does JSlim save?
 --------------------------------------
@@ -150,9 +150,7 @@ Most JavaScript compressors take your JavaScript and make it smaller by removing
 How stable is JSlim?
 --------------------------------------
 
-The short answer is that JSlim isn't very stable at all yet.  You still need to build it yourself and it requires a development version of the [Google Closure Compiler](http://code.google.com/closure/compiler/).  
-
-I've tested JSlim with the following libraries:
+The short answer is that JSlim isn't very stable at all yet.  You still need to build it yourself and it doesn't have a lot of testing.  I've tested JSlim with the following libraries:
 
 * [JQuery](http://jquery.com/)
 * [JQuery UI](http://jqueryui.com/)
