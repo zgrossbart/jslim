@@ -102,6 +102,28 @@ eval('myfunction();');
 
 JSlim can't follow this function call to `myFunction` since it is part of an evaluated string.  In this case you must reference `myFunction` as an external reference.  Many JavaScript library do dynamic loading like this, especially for effects.
 
+Can I see a simple example?
+--------------------------------------
+
+Let's say you write some JavaScript which looks like this:
+
+<pre><code>
+
+obj1 = {
+    f1: function() {
+        alert("I'm func 1");
+    },
+    
+    f2: function() {
+        alert("I'm func 2");
+    }
+};
+
+obj1.f1();
+</code></pre>
+
+JSlim looks at this code and detrmines that <code>f1</code> is called, but <code>f2</code> isn't.  In this case it will remove <code>f2</code> and make the code smaller and faster.  If you start using <code>f2</code> just run JSlim again and it will create a new library with it included.
+
 How much does JSlim save?
 --------------------------------------
 
