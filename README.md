@@ -52,7 +52,7 @@ java JSlimRunner [options...] arguments...
  --skip_gzip                            : Skip GZIPing the results
 </code></pre>
 
-This repository includes a number of sample application you can use to try JSlim with.  The easiest place to start is with a simple JQuery/userscore.js.  You can slim it like this:
+This repository includes a number of sample application you can use to try JSlim with.  The easiest place to start is with a simple JQuery/underscore.js.  You can slim it like this:
 
         build/install/jslim/bin/jslim --js_output_file out.js --js main.js --lib_js libs/jquery-1.6.2.js --lib_js libs/underscore.js
         
@@ -88,7 +88,7 @@ var myObj = {
 };
 </code></pre>
 
-JavaScript libraries provide functions like that and you call them in your code.  JSlim figures out which functions you're call, and which ones they're calling, and removes the rest.  
+JavaScript libraries provide functions like that and you call them in your code.  JSlim figures out which functions you're calling, and which ones they're calling, and removes the rest.  
 
 JSlim can track most function calls, but there are some where it can't follow what you're calling.  The easiest way to break JSlim is using the [eval](http://en.wikipedia.org/wiki/Eval#JavaScript) function like this:
 
@@ -147,7 +147,7 @@ function f(flag) {
 
 JSlim is best with a simple JQuery/underscore.js application where it reduces the total size of the libraries by 26% above using the Closure compiler and GZIPing.  Most libraries are reduced by 10-20 percent, but the savings in total size is only part of the story.
 
-Most JavaScript compressors make it smaller by removing whitespace and comments and inlining functions.  JSlim actually removes code which reduces [computational complexity](http://en.wikipedia.org/wiki/Computational_complexity_theory).  The means your libraries aren't just smaller, but they actually run faster.
+Most JavaScript compressors make your code smaller by removing whitespace and comments and inlining functions.  JSlim actually removes code which reduces [computational complexity](http://en.wikipedia.org/wiki/Computational_complexity_theory).  The means your libraries aren't just smaller, but they actually run faster.
 
 How stable is JSlim?
 --------------------------------------
