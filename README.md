@@ -8,9 +8,7 @@ Most websites use JavaScript libraries like [JQuery](http://jquery.com/) or [Pro
 Building JSlim
 --------------------------------------
 
-The project depends on the [Google Closure Compiler](http://code.google.com/closure/compiler/) and it can't run with the version from Maven central.  You must download the source for this compiler and reference the built compiler.jar file in the build.gradle file.  I'm working on making this easier.
-
-This project builds with [Gradle](http://www.gradle.org).  Build the application by running gradle in the root directory.
+This project builds with [Gradle](http://www.gradle.org).  Build the application by running gradle in the project root directory.
 
 This project builds and runs on Windows, Mac, and Linux.
 
@@ -142,8 +140,8 @@ I've tested JSlim with the following libraries:
 * [Raphaël](http://raphaeljs.com/)
 * [underscore.js](http://documentcloud.github.com/underscore/)
 
-JSlim should work with any library.  It can also work directly with your JavaScript.  Write as many functions as you want and JSlim will prune out the unused ones so your code stays small and your site stays fast.  
-
+JSlim should work with any library.  It can also work directly with your JavaScript.  Write as many functions as you want and JSlim will prune out the unused ones so your code stays small and your site stays fast.
+  
 JSlim roadmap
 --------------------------------------
 
