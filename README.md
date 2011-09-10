@@ -135,9 +135,9 @@ For example, if your code looks like this:
 
 <pre><code>
 function f(flag) {
-    if (value === 1) {
+    if (flag === 1) {
         alert($.now());
-    } else if (value === 2) {
+    } else if (flag === 2) {
         $.noop();
     }
 }
