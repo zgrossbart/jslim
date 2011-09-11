@@ -256,7 +256,7 @@ public class JSlim
         
         while (nodes.hasNext()) {
             Node n = nodes.next();
-
+            
             if (n.getType() == Token.VAR && n.getFirstChild().getType() == Token.NAME) {
                 m_vars.add(n);
             } else if (n.getType() == Token.CALL || n.getType() == Token.NEW) {
@@ -290,6 +290,17 @@ public class JSlim
         }
         
         return node;
+    }
+    
+    private Node findInterestingFunctionParent(Node n) 
+    {
+        if (n == null) {
+            return null;
+        } else if (isInterestingFunction(n)) {
+            return n;
+        } else {
+            return findInterestingFunctionParent(n.getParent());
+        }
     }
     
     /**
@@ -405,7 +416,7 @@ public class JSlim
              our calls list.
              */
             
-            addCall(assign.getLastChild().getString(), calls);
+            addCall(assign.getLastChild().getString(), assign, calls);
         } else if (assign.getFirstChild().getType() == Token.GETELEM &&
                    assign.getLastChild().getLastChild() != null &&
                    assign.getLastChild().getLastChild().getType() == Token.STRING) {
@@ -413,7 +424,7 @@ public class JSlim
              This means it is an assignment to an array element like:
                  res[toString] = R._path2string;
              */
-            addCall(assign.getLastChild().getLastChild().getString(), calls);
+            addCall(assign.getLastChild().getLastChild().getString(), assign, calls);
         }
     }
     
@@ -421,11 +432,23 @@ public class JSlim
      * Add a call to the specified list of calls or increment the call count if the call
      * is already in the list.
      * 
-     * @param call   the call to add
-     * @param calls  the list to add it to
+     * @param call     the call to add
+     * @param callNode the Node representing this call
+     * @param calls    the list to add it to
      */
-    private void addCall(String call, List<Call> calls)
+    private void addCall(String call, Node callNode, List<Call> calls)
     {
+        if (callMatchesParentfunction(call, callNode)) {
+            /*
+             If this is a call to a function with the same name then it
+             is probably recursion and we shouldn't count it.  This is a
+             little dangerous because you could be in function f and call
+             f on a separate object, but it is an unlikely case and that
+             will require an external reference.
+             */
+            return;
+        }
+        
         Call c = getCall(call, calls);
         
         if (c == null) {
@@ -468,17 +491,17 @@ public class JSlim
     private void addCallsProp(Node getProp, List<Call> calls)
     {
         if (getProp.getLastChild().getType() == Token.STRING) {
-            addCall(getProp.getLastChild().getString(), calls);
+            addCall(getProp.getLastChild().getString(), getProp, calls);
         }
         
         if (getProp.getFirstChild().getType() == Token.CALL) {
             /*
              Add the function name
              */
-            addCall(getProp.getLastChild().getString(), calls);
+            addCall(getProp.getLastChild().getString(), getProp, calls);
             
             if (getProp.getFirstChild().getFirstChild().getType() == Token.NAME) {
-                addCall(getProp.getFirstChild().getFirstChild().getString(), calls);
+                addCall(getProp.getFirstChild().getFirstChild().getString(), getProp, calls);
             }
         } else if (getProp.getFirstChild().getType() == Token.GETPROP) {
             addCallsProp(getProp.getFirstChild(), calls);
@@ -499,6 +522,36 @@ public class JSlim
         addCalls(call, m_calls);
     }
     
+    private boolean callMatchesParentfunction(String call, Node callNode)
+    {
+        Node f = findInterestingFunctionParent(callNode);
+        if (f != null) {
+            if (getFunctionName(f).equals(call)) {
+                /*
+                 Then the call name matches the direct parent name
+                 */
+                return true;
+            } else if (f.getParent() != null && f.getParent().getType() == Token.ASSIGN) {
+                /*
+                 This this function has an assignment chain like:
+                 _.reduceRight = _.foldr = function...
+                 So we have to walk up the chain
+                 */
+                Node parent = f.getParent();
+                while (parent != null && parent.getParent().getType() == Token.ASSIGN) {
+                    if (parent.getFirstChild().getType() == Token.GETPROP && 
+                        call.equals(parent.getFirstChild().getFirstChild().getNext().toString())) {
+                        return true;
+                    }
+                    
+                    parent = parent.getParent();
+                }
+            }
+        } 
+        
+        return false;
+    }
+    
     /**
      * Add all calls underneath the specified node.
      * 
@@ -507,15 +560,13 @@ public class JSlim
      */
     private void addCalls(Node call, List<Call> calls)
     {
-        //assert call.getType() == Token.CALL || call.getType() == Token.NEW;
-        
         if (call.getType() == Token.GETPROP) {
             addCallsProp(call, calls);
         } else if (call.getFirstChild().getType() == Token.GETPROP) {
             addCallsProp(call.getFirstChild(), calls);
         } else if (call.getFirstChild().getType() == Token.NAME) {
             Node name = call.getFirstChild();
-            addCall(name.getString(), calls);
+            addCall(name.getString(), name, calls);
             LOGGER.log(Level.FINE, "name.getString(): " + name.getString());
         }
     }
