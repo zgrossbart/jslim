@@ -59,11 +59,29 @@ public class JSlimTest
         throws IOException
     {
         JSlim slim = new JSlim();
-        String out = slim.addLib("propFuncs.js", readFile("propFuncs.js"));
+        String out = slim.addLib("propfuncs.js", readFile("propfuncs.js"));
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(1, funcs.length);
         assertEquals("func1", funcs[0]);
+    }
+    
+    /**
+     * Tests for functions which return closures.
+     * 
+     * @exception IOException if there is any error reading the sample file
+     */
+    @Test
+    public void funcClosureTest()
+        throws IOException
+    {
+        JSlim slim = new JSlim();
+        String out = slim.addLib("closurereturn.js", readFile("closurereturn.js"));
+        String funcs[] = slim.getKeptFunctions();
+        
+        assertEquals(2, funcs.length);
+        assertEquals("func1_1", funcs[0]);
+        assertEquals("func1", funcs[1]);
     }
     
     /**
