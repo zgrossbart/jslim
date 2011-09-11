@@ -284,6 +284,19 @@ public class JSlim
                 } else {
                     m_funcs.add(n);
                 }
+                
+                Node parent = n.getParent();
+                while (parent != null && parent.getType() == Token.ASSIGN) {
+                    if (parent.getFirstChild().getNext().getType() != Token.FUNCTION) {
+                        if (isLib) {
+                            m_libFuncs.add(parent);
+                        } else {
+                            m_funcs.add(parent);
+                        }
+                    }
+                    
+                    parent = parent.getParent();
+                }
             }
             
             process(n, isLib);
@@ -590,10 +603,6 @@ public class JSlim
         for (int i = m_libFuncs.size() - 1; i > -1; i--) {
             Node func = m_libFuncs.get(i);
             
-            if (getFunctionName(func).equals("isString")) {
-                LOGGER.log(Level.FINE, "m_keepers.contains(func): " + m_keepers.contains(func));
-            }
-            
             if (!m_keepers.contains(func)) {
                 removeCalledKeepers(func);
                 removeFunction(func);
@@ -622,7 +631,6 @@ public class JSlim
             orig.decCount(call.getCount());
             
             if (orig.getCount() < 1) {
-                LOGGER.log(Level.INFO, "removing called keeper: " + orig);
                 Node f = findFunction(orig.getName());
                 if (f != null) {
                     m_keepers.remove(f);
@@ -686,7 +694,7 @@ public class JSlim
              */
             //System.out.println("Removing function: " + n.getParent().getString());
             n.getParent().detachFromParent();
-        } else if (n.getParent().getType() == Token.ASSIGN) {
+        } else if (n.getParent().getType() == Token.ASSIGN || n.getParent().getType() == Token.EXPR_RESULT) {
             /*
              This is a property assignment function like:
                 myObj.func1 = function()
@@ -939,11 +947,18 @@ public class JSlim
                  */
                 return n.getParent().getString();
             } else {
-                /*
-                 This is a standard type of function like this:
-                    function myFunc()
-                 */
-                return n.getFirstChild().getString();
+                if (n.getFirstChild().getType() == Token.GETPROP) {
+                    /*
+                     This is a chain function assignment
+                     */
+                    return n.getFirstChild().getFirstChild().getNext().getString();
+                } else {
+                    /*
+                     This is a standard type of function like this:
+                        function myFunc()
+                     */
+                    return n.getFirstChild().getString();
+                }
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "npe: " + n.toStringTree());

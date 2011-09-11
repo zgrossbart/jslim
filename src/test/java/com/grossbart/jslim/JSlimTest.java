@@ -100,7 +100,7 @@ public class JSlimTest
         String out = slim.addLib("recursionchaincall.js", readFile("recursionchaincall.js"));
         String funcs[] = slim.getKeptFunctions();
         
-        assertEquals(2, funcs.length);
+        assertEquals(3, funcs.length);
         assertEquals("func1", funcs[0]);
         assertEquals("func3", funcs[1]);
     }
@@ -310,7 +310,7 @@ public class JSlimTest
         String out = slim.addLib("propertyassignmentchain.js", readFile("propertyassignmentchain.js"));
         String funcs[] = slim.getKeptFunctions();
         
-        assertEquals(1, funcs.length);
+        assertEquals(3, funcs.length);
         assertEquals("func3", funcs[0]);
         
         /*
