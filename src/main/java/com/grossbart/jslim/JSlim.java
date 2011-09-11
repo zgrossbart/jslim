@@ -525,6 +525,7 @@ public class JSlim
     private boolean callMatchesParentfunction(String call, Node callNode)
     {
         Node f = findInterestingFunctionParent(callNode);
+        
         if (f != null) {
             if (getFunctionName(f).equals(call)) {
                 /*
@@ -532,15 +533,16 @@ public class JSlim
                  */
                 return true;
             } else if (f.getParent() != null && f.getParent().getType() == Token.ASSIGN) {
+                
                 /*
                  This this function has an assignment chain like:
                  _.reduceRight = _.foldr = function...
                  So we have to walk up the chain
                  */
                 Node parent = f.getParent();
-                while (parent != null && parent.getParent().getType() == Token.ASSIGN) {
+                while (parent != null && parent.getType() == Token.ASSIGN) {
                     if (parent.getFirstChild().getType() == Token.GETPROP && 
-                        call.equals(parent.getFirstChild().getFirstChild().getNext().toString())) {
+                        call.equals(parent.getFirstChild().getFirstChild().getNext().getString())) {
                         return true;
                     }
                     
