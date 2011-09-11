@@ -50,6 +50,62 @@ public class JSlimTest
     }
     
     /**
+     * The recursion test makes sure we remove functions if the only references 
+     * to them are recursive .
+     * 
+     * @exception IOException if there is any error reading the sample file
+     */
+    @Test
+    public void recursionTest()
+        throws IOException
+    {
+        JSlim slim = new JSlim();
+        String out = slim.addLib("recursion.js", readFile("recursion.js"));
+        String funcs[] = slim.getKeptFunctions();
+        
+        assertEquals(1, funcs.length);
+        assertEquals("func1", funcs[0]);
+    }
+    
+    /**
+     * The recursion chain test makes sure we remove functions if the only references 
+     * to them are recursive even if they are declared in a function chain. 
+     * 
+     * @exception IOException if there is any error reading the sample file
+     */
+    @Test
+    public void recursionChainTest()
+        throws IOException
+    {
+        JSlim slim = new JSlim();
+        String out = slim.addLib("recursionchain.js", readFile("recursionchain.js"));
+        String funcs[] = slim.getKeptFunctions();
+        
+        assertEquals(1, funcs.length);
+        assertEquals("func1", funcs[0]);
+    }
+    
+    /**
+     * The recursion chain call test makes sure we remove functions if the only references 
+     * to them are recursive even if they are declared in a function chain and that we 
+     * don't remove functions in that case if they're called from somewhere else. 
+     * 
+     * @exception IOException if there is any error reading the sample file
+     */
+    @Test
+    public void recursionChainCallTest()
+        throws IOException
+    {
+        JSlim slim = new JSlim();
+        String out = slim.addLib("recursionchaincall.js", readFile("recursionchaincall.js"));
+        String funcs[] = slim.getKeptFunctions();
+        
+        assertEquals(2, funcs.length);
+        assertEquals("func1", funcs[0]);
+        assertEquals("func3", funcs[1]);
+    }
+    
+    /**
      * Tests for functional property assignment.
      * 
      * @exception IOException if there is any error reading the sample file
