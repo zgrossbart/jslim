@@ -65,7 +65,7 @@ Miaow my name is Fluffy
 Miaow my name is Mouse
 </code></pre>
 
-This process will remove 88 out of 237 named functions (34 percent) and reduce the total size of the library files by 27 percent.
+This process will remove 90 out of 237 named functions (34 percent) and reduce the total size of the library files by 28 percent.
 
 How JSlim works
 --------------------------------------
@@ -145,7 +145,7 @@ function f(flag) {
 
 ...JSlim will keep the `now` function and the `noop` function since it can't tell what the value of flag might be.
 
-JSlim is best with a simple JQuery/underscore.js application where it reduces the total size of the libraries by 27% above using the Closure compiler and GZIPing.  Most libraries are reduced by 10-20 percent, but the savings in total size is only part of the story.
+JSlim is best with a simple JQuery/underscore.js application where it reduces the total size of the libraries by 28% above using the Closure compiler and GZIPing.  Most libraries are reduced by 10-20 percent, but the savings in total size is only part of the story.
 
 Most JavaScript compressors make your code smaller by removing whitespace and comments and inlining functions.  JSlim actually removes code which reduces [computational complexity](http://en.wikipedia.org/wiki/Computational_complexity_theory).  The means your libraries aren't just smaller, but they actually run faster.
 
