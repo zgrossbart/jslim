@@ -614,11 +614,27 @@ public class JSlim
             Node current = getElem.getFirstChild().getNext();
             while (current != null) {
                 if (current.getFirstChild().getType() == Token.ADD) {
-                    sb.insert(0, getString(current.getFirstChild().getNext()));
+                    String s = getString(current.getFirstChild().getNext());
+                    if (s != null) {
+                        sb.insert(0, s);
+                    } else {
+                        return null;
+                    }
                     current = current.getFirstChild();
                 } else if (current.getFirstChild().getType() == Token.STRING) {
-                    sb.insert(0, getString(current.getFirstChild().getNext()));
-                    sb.insert(0, getString(current.getFirstChild()));
+                    String s = getString(current.getFirstChild().getNext());
+                    if (s != null) {
+                        sb.insert(0, s);
+                    } else {
+                        return null;
+                    }
+                    
+                    s = getString(current.getFirstChild());
+                    if (s != null) {
+                        sb.insert(0, s);
+                    } else {
+                        return null;
+                    }
                     current = null;
                 } else {
                     current = null;
@@ -650,7 +666,7 @@ public class JSlim
                 return "" + num;
             }
         } else {
-            throw new IllegalArgumentException("getString must be called with a string or a number and it was called with: " + n);
+            return null;
         }
     }
     
@@ -958,7 +974,14 @@ public class JSlim
         }
         
         if (n.getType() == Token.ASSIGN) {
-            names.add(n.getFirstChild().getLastChild().getString());
+            if (n.getFirstChild().getType() == Token.GETELEM) {
+                String c = getConcatenatedStringIndex(n.getFirstChild());
+                if (c != null) {
+                    names.add(c);
+                }
+            } else {
+                names.add(n.getFirstChild().getLastChild().getString());
+            }
         }
         
         if (n.getParent().getType() == Token.ASSIGN) {
@@ -998,7 +1021,12 @@ public class JSlim
                      depend on just the name when removing them.  We're
                      just leaving them for now.
                      */
-                    return null;
+                    String c = getConcatenatedStringIndex(n.getParent().getFirstChild());
+                    if (c != null) {
+                        return c;
+                    } else {
+                        return null;
+                    }
                 } else {
                     /*
                      This is a property assignment function like:

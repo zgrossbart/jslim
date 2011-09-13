@@ -371,6 +371,24 @@ public class JSlimTest
     }
     
     /**
+     * Test a function assignment by property reference
+     * 
+     * @exception IOException if there is any error reading the sample file
+     */
+    @Test
+    public void functionArrayAssignmentTest()
+        throws IOException
+    {
+        JSlim slim = new JSlim();
+        String out = slim.addLib("functionarrayassignment.js", readFile("functionarrayassignment.js"));
+        String funcs[] = slim.getKeptFunctions();
+        
+        assertEquals(2, funcs.length);
+        assertEquals("func2", funcs[0]);
+        assertEquals("func3", funcs[1]);
+    }
+    
+    /**
      * Check a file with a parse error.
      * 
      * @exception IOException if there is any error reading the sample file
