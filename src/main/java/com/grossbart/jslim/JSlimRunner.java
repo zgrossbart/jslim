@@ -82,6 +82,11 @@ public class JSlimRunner
         "WHITESPACE_ONLY, SIMPLE_OPTIMIZATIONS, ADVANCED_OPTIMIZATIONS")
     private SlimCompilationLevel m_compilationLevel = SlimCompilationLevel.SIMPLE_OPTIMIZATIONS;
     
+    @Option(name = "--formatting",
+        usage = "Specifies which formatting options, if any, should be applied to the output JS. Options: " +
+            "PRETTY_PRINT, PRINT_INPUT_DELIMITER")
+    private JSlim.FormattingOption m_formatting;
+    
     /**
      * This enumeration handles all of the log level argument for the command line of 
      * this application.
@@ -339,6 +344,10 @@ public class JSlimRunner
             result = result + "\n" + m_mainFiles;
         }
         
+        if (m_formatting != null) {
+            slim.setFormattingOptions(m_formatting);
+        }
+        
         CompilationLevel level = getCompilationLevel();
         
         if (level != null) {
@@ -347,7 +356,7 @@ public class JSlimRunner
              to make them even smaller
              */
             JSlim.getLogger().log(Level.INFO, "Starting closure compile with compile level " + level);
-            result = JSlim.plainCompile(m_output, result, level);
+            result = JSlim.plainCompile(m_output, result, level, m_formatting);
         }
         
         /*
@@ -394,7 +403,7 @@ public class JSlimRunner
             String contents = FileUtils.readFileToString(f, m_charset);
             
             if (m_preparse) {
-                ErrorManager mgr = slim.validate(f.getAbsolutePath(), contents);
+                ErrorManager mgr = slim.validate(f.getAbsolutePath(), contents, m_formatting);
                 if (mgr.getErrorCount() != 0) {
                     mgr.generateReport();
                     return false;

@@ -48,6 +48,37 @@ import com.google.javascript.rhino.Token;
  */
 public class JSlim 
 {
+    /** 
+     * Set of options that can be used with the --formatting flag. 
+     */
+    public static enum FormattingOption
+    {
+        /** 
+         * The options for pretty printing 
+         */
+        PRETTY_PRINT, 
+
+        /** 
+         * The options for printing input delimeters
+         */
+        PRINT_INPUT_DELIMITER;
+        
+        private void applyToOptions(CompilerOptions options)
+        {
+            switch (this) {
+            case PRETTY_PRINT:
+                options.prettyPrint = true;
+                break;
+
+            case PRINT_INPUT_DELIMITER:
+                options.printInputDelimiter = true;
+                break;
+            default:
+                throw new RuntimeException("Unknown formatting option: " + this);
+            }
+        }
+    }
+    
     private static final Logger LOGGER = Logger.getLogger(JSlim.class.getName());
     
     static {
@@ -91,6 +122,17 @@ public class JSlim
     
     private String m_charset = "UTF-8";
     private boolean m_printTree = false;
+    private FormattingOption m_formattingOptions;
+    
+    /**
+     * Set the formatting options for this compiler.
+     * 
+     * @param options the formatting options
+     */
+    public void setFormattingOptions(FormattingOption options)
+    {
+        m_formattingOptions = options;
+    }
     
     /**
      * `Add the library contents to the compiler and prune them.
@@ -140,10 +182,11 @@ public class JSlim
      * 
      * @param name    the name of the file
      * @param content the file contents
+     * @param formattingOptions the formtting options for this compile
      * 
      * @return the error manager containing any errors from the specified file
      */
-    public static ErrorManager validate(String name, String content)
+    public static ErrorManager validate(String name, String content, FormattingOption formattingOptions)
     {
         Compiler compiler = new Compiler();
 
@@ -158,6 +201,10 @@ public class JSlim
         // The dummy input name "input.js" is used here so that any warnings or
         // errors will cite line numbers in terms of input.js.
         JSSourceFile input[] = {JSSourceFile.fromCode(name, content)};
+        
+        if (formattingOptions != null) {
+            formattingOptions.applyToOptions(options);
+        }
 
         compiler.init(extern, input, options);
 
@@ -189,6 +236,10 @@ public class JSlim
         // The dummy input name "input.js" is used here so that any warnings or
         // errors will cite line numbers in terms of input.js.
         JSSourceFile input[] = {JSSourceFile.fromCode(name, code)};
+        
+        if (m_formattingOptions != null) {
+            m_formattingOptions.applyToOptions(options);
+        }
 
         compiler.init(extern, input, options);
 
@@ -1110,11 +1161,12 @@ public class JSlim
      * 
      * @param name   the name of the file to compile
      * @param code   the code contents of the file to compile
-     * @param level  the compilation level for this compile
+     * @param level  the compilation level for this compile 
+     * @param formattingOptions the formtting options for this compile 
      * 
      * @return the compiled contents
      */
-    public static String plainCompile(String name, String code, CompilationLevel level)
+    public static String plainCompile(String name, String code, CompilationLevel level, FormattingOption formattingOptions)
     {
         Compiler compiler = new Compiler();
         
@@ -1126,6 +1178,10 @@ public class JSlim
         CompilerOptions options = new CompilerOptions();
         // Advanced mode is used here, but additional options could be set, too.
         level.setOptionsForCompilationLevel(options);
+        
+        if (formattingOptions != null) {
+            formattingOptions.applyToOptions(options);
+        }
         
         // To get the complete set of externs, the logic in
         // CompilerRunner.getDefaultExterns() should be used here.
