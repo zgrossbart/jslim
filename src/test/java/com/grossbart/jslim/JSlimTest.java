@@ -320,6 +320,57 @@ public class JSlimTest
     }
     
     /**
+     * Test a property reference by string index
+     * 
+     * @exception IOException if there is any error reading the sample file
+     */
+    @Test
+    public void stringPropertyReferenceTest()
+        throws IOException
+    {
+        JSlim slim = new JSlim();
+        String out = slim.addLib("stringpropertyreference.js", readFile("stringpropertyreference.js"));
+        String funcs[] = slim.getKeptFunctions();
+        
+        assertEquals(1, funcs.length);
+        assertEquals("hello", funcs[0]);
+    }
+    
+    /**
+     * Test a property reference by concatenated string index
+     * 
+     * @exception IOException if there is any error reading the sample file
+     */
+    @Test
+    public void stringPropertyCatReferenceTest()
+        throws IOException
+    {
+        JSlim slim = new JSlim();
+        String out = slim.addLib("stringpropertycatreference.js", readFile("stringpropertycatreference.js"));
+        String funcs[] = slim.getKeptFunctions();
+        
+        assertEquals(1, funcs.length);
+        assertEquals("hello", funcs[0]);
+    }
+    
+    /**
+     * Test a property reference by concatenated string index with a number
+     * 
+     * @exception IOException if there is any error reading the sample file
+     */
+    @Test
+    public void stringPropertyNumCatReferenceTest()
+        throws IOException
+    {
+        JSlim slim = new JSlim();
+        String out = slim.addLib("stringpropertynumcatreference.js", readFile("stringpropertynumcatreference.js"));
+        String funcs[] = slim.getKeptFunctions();
+        
+        assertEquals(1, funcs.length);
+        assertEquals("hello1", funcs[0]);
+    }
+    
+    /**
      * Check a file with a parse error.
      * 
      * @exception IOException if there is any error reading the sample file

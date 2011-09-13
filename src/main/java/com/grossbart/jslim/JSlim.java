@@ -583,6 +583,74 @@ public class JSlim
             Node name = call.getFirstChild();
             addCall(name.getString(), name, calls);
             LOGGER.log(Level.FINE, "name.getString(): " + name.getString());
+        } else if (call.getFirstChild().getType() == Token.GETELEM) {
+            /*
+             This is a call using the array index to get the function
+             property like this:
+     
+             obj['hello']();
+             */
+            String c = getConcatenatedStringIndex(call.getFirstChild());
+            if (c != null) {
+                addCall(c, call, calls);
+            }
+        }
+    }
+    
+    private String getConcatenatedStringIndex(Node getElem)
+    {
+        if (getElem.getFirstChild().getNext().getType() == Token.STRING) {
+            /*
+             Then this is a simple string reference like obj['hello']
+             and we can just return the string
+             */
+            return getElem.getFirstChild().getNext().getString();
+        } else if (getElem.getFirstChild().getNext().getType() == Token.ADD) {
+            /*
+             Then this is a concatenated string like obj['h' + 'el' + 'lo']
+             */
+            
+            StringBuffer sb = new StringBuffer();
+            Node current = getElem.getFirstChild().getNext();
+            while (current != null) {
+                if (current.getFirstChild().getType() == Token.ADD) {
+                    sb.insert(0, getString(current.getFirstChild().getNext()));
+                    current = current.getFirstChild();
+                } else if (current.getFirstChild().getType() == Token.STRING) {
+                    sb.insert(0, getString(current.getFirstChild().getNext()));
+                    sb.insert(0, getString(current.getFirstChild()));
+                    current = null;
+                } else {
+                    current = null;
+                }
+            }
+            
+            return sb.toString();
+        } else {
+            /*
+             Then this was some more complex type of string like
+             obj[('h' + 'el' + 'lo').substring(2)].  We can't evaluate
+             that string with just static evaluation so the user
+             will have to declare an external for that.
+             */
+            return null;
+        }
+    }
+    
+    private String getString(Node n)
+    {
+        if (n.getType() == Token.STRING) {
+            return n.getString();
+        } else if (n.getType() == Token.NUMBER) {
+            double num = n.getDouble();
+            int inum = (int) num;
+            if (inum == num) {
+                return "" + inum;
+            } else {
+                return "" + num;
+            }
+        } else {
+            throw new IllegalArgumentException("getString must be called with a string or a number and it was called with: " + n);
         }
     }
     
