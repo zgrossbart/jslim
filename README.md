@@ -31,6 +31,10 @@ java JSlimRunner [options...] arguments...
                                           . You may specify multiple
  --flagfile VAL                         : A file containing additional command-l
                                           ine options.
+ --formatting [PRETTY_PRINT | PRINT_INP : Specifies which formatting options, if
+ UT_DELIMITER]                          :  any, should be applied to the output
+                                          JS. Options: PRETTY_PRINT, PRINT_INPUT
+                                          _DELIMITER
  --help                                 : Displays this message
  --js VAL                               : The javascript filename. You may speci
                                           fy multiple
@@ -50,6 +54,9 @@ java JSlimRunner [options...] arguments...
                                           aScript.
  --print_tree                           : Prints out the parse tree and exits
  --skip_gzip                            : Skip GZIPing the results
+
+
+
 </code></pre>
 
 This repository includes a number of sample application you can use to try JSlim with.  The easiest place to start is with a simple JQuery/underscore.js.  You can slim it like this:
