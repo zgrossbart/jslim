@@ -64,8 +64,7 @@ This repository includes a number of sample application you can use to try JSlim
         
 Once that command is done you can open the index.html file in your favorite browser and see this output:
 
-<pre><code>
-2,4,6,8
+<pre><code>2,4,6,8
 Miaow my name is Charlie
 Miaow my name is Fluffy
 Miaow my name is Mouse
@@ -78,16 +77,14 @@ How JSlim works
 
 JavaScript organizes blocks of code into functions.  Some functions are named and stand alone like this:
 
-<pre><code>
-function myFunction() {
+<pre><code>function myFunction() {
     alert('hey there');
 }
 </code></pre>
 
 Other functions are organized into JavaScript closures like this:
 
-<pre><code>
-var myObj = {
+<pre><code>var myObj = {
     myFunction: function() {
         alert('hey there');
     }
@@ -98,8 +95,7 @@ JavaScript libraries provide functions like that and you call them in your code.
 
 JSlim can track most function calls, but there are some where it can't follow what you're calling.  The easiest way to break JSlim is using the [eval](http://en.wikipedia.org/wiki/Eval#JavaScript) function like this:
 
-<pre><code>
-function myFunction() {
+<pre><code>function myFunction() {
     alert('hey there');
 }
 
@@ -113,9 +109,7 @@ Can I see a simple example?
 
 Let's say you write some JavaScript which looks like this:
 
-<pre><code>
-
-o = {
+<pre><code>o = {
     f1: function() {
         alert("I'm func 1");
     },
@@ -139,8 +133,7 @@ JSlim doesn't work well with libraries using mostly anonymous functions and othe
 
 For example, if your code looks like this:
 
-<pre><code>
-function f(flag) {
+<pre><code>function f(flag) {
     if (flag === 1) {
         alert($.now());
     } else if (flag === 2) {
