@@ -1,0 +1,1 @@
+build/install/jslim/bin/jslim --js_output_file out.js --js libs/backbone/todos.js --lib_js libs/backbone/json2.js --lib_js libs/backbone/jquery-1.6.4.js --lib_js libs/backbone/underscore-1.1.6.js --lib_js libs/backbone/backbone.js --lib_js libs/backbone/backbone-localstorage.js --externs libs/backbone/externs.txt
