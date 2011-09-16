@@ -153,13 +153,14 @@ How stable is JSlim?
 
 The short answer is that JSlim isn't very stable at all yet.  You still need to build it yourself and it doesn't have a lot of testing.  I've tested JSlim with the following libraries:
 
+* [Backbone.js](http://documentcloud.github.com/backbone/)
 * [JQuery](http://jquery.com/)
 * [JQuery UI](http://jqueryui.com/)
 * [Modernizr](http://www.modernizr.com/)
 * [Mootools](http://mootools.net/)
 * [Prototype](http://www.prototypejs.org/)
 * [Raphaël](http://raphaeljs.com/)
-* [underscore.js](http://documentcloud.github.com/underscore/)
+* [Underscore.js](http://documentcloud.github.com/underscore/)
 
 JSlim should work with any library.  It can also work directly with your JavaScript.  Write as many functions as you want and JSlim will prune out the unused ones so your code stays small and your site stays fast.
   
