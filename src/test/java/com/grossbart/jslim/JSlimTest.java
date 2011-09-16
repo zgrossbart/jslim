@@ -407,6 +407,23 @@ public class JSlimTest
     }
     
     /**
+     * The call tests makes sure we can track down the call method
+     * 
+     * @exception IOException if there is any error reading the sample file
+     */
+    @Test
+    public void callTest()
+        throws IOException
+    {
+        JSlim slim = new JSlim();
+        String out = slim.addLib("call.js", readFile("call.js"));
+        String funcs[] = slim.getKeptFunctions();
+        
+        assertEquals(1, funcs.length);
+        assertEquals("func1", funcs[0]);
+    }
+    
+    /**
      * Check a file with a parse error.
      * 
      * @exception IOException if there is any error reading the sample file
