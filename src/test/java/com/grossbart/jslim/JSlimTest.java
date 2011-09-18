@@ -20,8 +20,9 @@ package com.grossbart.jslim;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.io.IOUtils;
+import com.google.javascript.jscomp.CompilationLevel;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -42,7 +43,7 @@ public class JSlimTest
         throws IOException
     {
         JSlim slim = new JSlim();
-        String out = slim.addLib("basic.js", readFile("basic.js"));
+        String out = slim.addLib("basic.js", readFile("basic.js"), CompilationLevel.SIMPLE_OPTIMIZATIONS);
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(1, funcs.length);
@@ -60,7 +61,7 @@ public class JSlimTest
         throws IOException
     {
         JSlim slim = new JSlim();
-        String out = slim.addLib("recursion.js", readFile("recursion.js"));
+        String out = slim.addLib("recursion.js", readFile("recursion.js"), CompilationLevel.SIMPLE_OPTIMIZATIONS);
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(1, funcs.length);
@@ -78,7 +79,7 @@ public class JSlimTest
         throws IOException
     {
         JSlim slim = new JSlim();
-        String out = slim.addLib("recursionchain.js", readFile("recursionchain.js"));
+        String out = slim.addLib("recursionchain.js", readFile("recursionchain.js"), CompilationLevel.SIMPLE_OPTIMIZATIONS);
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(1, funcs.length);
@@ -97,7 +98,7 @@ public class JSlimTest
         throws IOException
     {
         JSlim slim = new JSlim();
-        String out = slim.addLib("recursionchaincall.js", readFile("recursionchaincall.js"));
+        String out = slim.addLib("recursionchaincall.js", readFile("recursionchaincall.js"), CompilationLevel.SIMPLE_OPTIMIZATIONS);
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(3, funcs.length);
@@ -115,7 +116,7 @@ public class JSlimTest
         throws IOException
     {
         JSlim slim = new JSlim();
-        String out = slim.addLib("propfuncs.js", readFile("propfuncs.js"));
+        String out = slim.addLib("propfuncs.js", readFile("propfuncs.js"), CompilationLevel.SIMPLE_OPTIMIZATIONS);
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(1, funcs.length);
@@ -132,7 +133,7 @@ public class JSlimTest
         throws IOException
     {
         JSlim slim = new JSlim();
-        String out = slim.addLib("closurereturn.js", readFile("closurereturn.js"));
+        String out = slim.addLib("closurereturn.js", readFile("closurereturn.js"), CompilationLevel.SIMPLE_OPTIMIZATIONS);
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(2, funcs.length);
@@ -150,7 +151,7 @@ public class JSlimTest
         throws IOException
     {
         JSlim slim = new JSlim();
-        String out = slim.addLib("assignment.js", readFile("assignment.js"));
+        String out = slim.addLib("assignment.js", readFile("assignment.js"), CompilationLevel.SIMPLE_OPTIMIZATIONS);
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(1, funcs.length);
@@ -167,7 +168,7 @@ public class JSlimTest
         throws IOException
     {
         JSlim slim = new JSlim();
-        String out = slim.addLib("argument.js", readFile("argument.js"));
+        String out = slim.addLib("argument.js", readFile("argument.js"), CompilationLevel.SIMPLE_OPTIMIZATIONS);
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(1, funcs.length);
@@ -184,7 +185,7 @@ public class JSlimTest
         throws IOException
     {
         JSlim slim = new JSlim();
-        String out = slim.addLib("reference.js", readFile("reference.js"));
+        String out = slim.addLib("reference.js", readFile("reference.js"), CompilationLevel.SIMPLE_OPTIMIZATIONS);
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(1, funcs.length);
@@ -201,7 +202,7 @@ public class JSlimTest
         throws IOException
     {
         JSlim slim = new JSlim();
-        String out = slim.addLib("referencechain.js", readFile("referencechain.js"));
+        String out = slim.addLib("referencechain.js", readFile("referencechain.js"), CompilationLevel.SIMPLE_OPTIMIZATIONS);
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(1, funcs.length);
@@ -225,7 +226,7 @@ public class JSlimTest
          */
         slim.addExtern("func2");
         
-        String out = slim.addLib("functionreturn.js", readFile("functionreturn.js"));
+        String out = slim.addLib("functionreturn.js", readFile("functionreturn.js"), CompilationLevel.SIMPLE_OPTIMIZATIONS);
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(2, funcs.length);
@@ -244,7 +245,7 @@ public class JSlimTest
     {
         JSlim slim = new JSlim();
         
-        String out = slim.addLib("functionreturn2.js", readFile("functionreturn2.js"));
+        String out = slim.addLib("functionreturn2.js", readFile("functionreturn2.js"), CompilationLevel.SIMPLE_OPTIMIZATIONS);
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(1, funcs.length);
@@ -268,7 +269,7 @@ public class JSlimTest
         throws IOException
     {
         JSlim slim = new JSlim();
-        String out = slim.addLib("inlinefunctionreturn.js", readFile("inlinefunctionreturn.js"));
+        String out = slim.addLib("inlinefunctionreturn.js", readFile("inlinefunctionreturn.js"), CompilationLevel.SIMPLE_OPTIMIZATIONS);
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(1, funcs.length);
@@ -290,7 +291,7 @@ public class JSlimTest
         throws IOException
     {
         JSlim slim = new JSlim();
-        String out = slim.addLib("functionrefarray.js", readFile("functionrefarray.js"));
+        String out = slim.addLib("functionrefarray.js", readFile("functionrefarray.js"), CompilationLevel.SIMPLE_OPTIMIZATIONS);
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(1, funcs.length);
@@ -307,7 +308,8 @@ public class JSlimTest
         throws IOException
     {
         JSlim slim = new JSlim();
-        String out = slim.addLib("propertyassignmentchain.js", readFile("propertyassignmentchain.js"));
+        String out = slim.addLib("propertyassignmentchain.js", readFile("propertyassignmentchain.js"), 
+                                 CompilationLevel.SIMPLE_OPTIMIZATIONS);
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(3, funcs.length);
@@ -329,7 +331,8 @@ public class JSlimTest
         throws IOException
     {
         JSlim slim = new JSlim();
-        String out = slim.addLib("stringpropertyreference.js", readFile("stringpropertyreference.js"));
+        String out = slim.addLib("stringpropertyreference.js", readFile("stringpropertyreference.js"), 
+                                 CompilationLevel.SIMPLE_OPTIMIZATIONS);
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(1, funcs.length);
@@ -346,7 +349,8 @@ public class JSlimTest
         throws IOException
     {
         JSlim slim = new JSlim();
-        String out = slim.addLib("stringpropertycatreference.js", readFile("stringpropertycatreference.js"));
+        String out = slim.addLib("stringpropertycatreference.js", readFile("stringpropertycatreference.js"), 
+                                 CompilationLevel.SIMPLE_OPTIMIZATIONS);
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(1, funcs.length);
@@ -363,7 +367,8 @@ public class JSlimTest
         throws IOException
     {
         JSlim slim = new JSlim();
-        String out = slim.addLib("stringpropertynumcatreference.js", readFile("stringpropertynumcatreference.js"));
+        String out = slim.addLib("stringpropertynumcatreference.js", readFile("stringpropertynumcatreference.js"), 
+                                 CompilationLevel.SIMPLE_OPTIMIZATIONS);
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(1, funcs.length);
@@ -380,7 +385,8 @@ public class JSlimTest
         throws IOException
     {
         JSlim slim = new JSlim();
-        String out = slim.addLib("functionarrayassignment.js", readFile("functionarrayassignment.js"));
+        String out = slim.addLib("functionarrayassignment.js", readFile("functionarrayassignment.js"), 
+                                 CompilationLevel.SIMPLE_OPTIMIZATIONS);
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(2, funcs.length);
@@ -398,7 +404,8 @@ public class JSlimTest
         throws IOException
     {
         JSlim slim = new JSlim();
-        String out = slim.addLib("functionarrayassignmentvar.js", readFile("functionarrayassignmentvar.js"));
+        String out = slim.addLib("functionarrayassignmentvar.js", readFile("functionarrayassignmentvar.js"), 
+                                 CompilationLevel.SIMPLE_OPTIMIZATIONS);
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(2, funcs.length);
@@ -416,7 +423,7 @@ public class JSlimTest
         throws IOException
     {
         JSlim slim = new JSlim();
-        String out = slim.addLib("call.js", readFile("call.js"));
+        String out = slim.addLib("call.js", readFile("call.js"), CompilationLevel.SIMPLE_OPTIMIZATIONS);
         String funcs[] = slim.getKeptFunctions();
         
         assertEquals(1, funcs.length);
@@ -433,7 +440,7 @@ public class JSlimTest
         throws IOException
     {
         JSlim slim = new JSlim();
-        String output = slim.addLib("invalid.js", readFile("invalid.js"));
+        String output = slim.addLib("invalid.js", readFile("invalid.js"), CompilationLevel.SIMPLE_OPTIMIZATIONS);
         
         //slim.getErrorManager().generateReport();
         

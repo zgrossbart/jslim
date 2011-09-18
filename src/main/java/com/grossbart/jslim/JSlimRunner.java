@@ -316,6 +316,8 @@ public class JSlimRunner
         slim.setCharset(m_charset);
         slim.setPrintTree(m_printTree);
         
+        CompilationLevel level = getCompilationLevel();
+        
         /*
          First we add the externs
          */
@@ -335,7 +337,7 @@ public class JSlimRunner
         /*
          Then we can call the prune process
          */
-        String result = slim.prune();
+        String result = slim.prune(level);
         
         if (!m_separate) {
             /*
@@ -348,8 +350,6 @@ public class JSlimRunner
         if (m_formatting != null) {
             slim.setFormattingOptions(m_formatting);
         }
-        
-        CompilationLevel level = getCompilationLevel();
         
         if (level != null) {
             /*

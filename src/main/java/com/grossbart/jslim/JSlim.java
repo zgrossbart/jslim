@@ -138,13 +138,14 @@ public class JSlim
      * `Add the library contents to the compiler and prune them.
      * 
      * @param name   the file name of the added library
-     * @param code   the code contents
+     * @param code   the code contents 
+     * @param compLevel the compilation level 
      * 
      * @return the pruned file
      */
-    protected String addLib(String name, String code)
+    protected String addLib(String name, String code, CompilationLevel compLevel)
     {
-        return slim(name, code, true);
+        return slim(name, code, true, compLevel);
     }
     
     /**
@@ -158,11 +159,13 @@ public class JSlim
     }
     
     /**
-     * Prune all of the files which have been added to this compiler instance.
+     * Prune all of the files which have been added to this compiler instance. 
+     *  
+     * @param compLevel the compilation level 
      * 
      * @return the pruned result of this precompile
      */
-    public String prune()
+    public String prune(CompilationLevel compLevel)
     {
         StringBuffer sb = new StringBuffer();
         
@@ -170,11 +173,11 @@ public class JSlim
             if (file.isLib()) {
                 sb.append(file.getContent() + "\n");
             } else {
-                slim(file.getName(), file.getContent(), false);
+                slim(file.getName(), file.getContent(), false, compLevel);
             }
         }
         
-        return addLib("combined_lib.js", sb.toString());
+        return addLib("combined_lib.js", sb.toString(), compLevel);
     }
     
     /**
@@ -215,19 +218,22 @@ public class JSlim
     /**
      * Parse, compile, and slim the specified code
      * 
-     * @param name   the name of the file to slim
-     * @param code   JavaScript source code to compile.
-     * @param isLib  true if this is a library file and false otherwise
+     * @param name      the name of the file to slim
+     * @param code      JavaScript source code to compile.
+     * @param isLib     true if this is a library file and false otherwise
+     * @param compLevel the compilation level
      * 
      * @return The compiled version of the code.
      */
-    private String slim(String name, String code, boolean isLib)
+    private String slim(String name, String code, boolean isLib, CompilationLevel compLevel)
     {
         Compiler compiler = new Compiler();
 
         CompilerOptions options = new CompilerOptions();
-        // Advanced mode is used here, but additional options could be set, too.
-        CompilationLevel.SIMPLE_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
+        if (compLevel != null) {
+            // Advanced mode is used here, but additional options could be set, too.
+            compLevel.setOptionsForCompilationLevel(options);
+        }
 
         // To get the complete set of externs, the logic in
         // CompilerRunner.getDefaultExterns() should be used here.
@@ -411,33 +417,20 @@ public class JSlim
             n.getParent().getType() == Token.ASSIGN) {
             
             /*
-             If this function is part of an object list that means
-             it is named and getting passed to a function and most
-             likely getting called without a direct function reference
-             so we have to leave it there.
+             If the function doesn't have a name we can identify then it is anonymous and
+             we can't tell if anyone is calling it.
              */
-            if (!(n.getParent().getParent().getType() == Token.OBJECTLIT &&
-                  n.getParent().getParent().getParent().getType() == Token.CALL)) {
-                
+            if (getFunctionName(n) != null) {
                 /*
-                 If the function doesn't have a name we can identify then it is anonymous and
-                 we can't tell if anyone is calling it.
+                 If this function has a direct parent which is another function instead of
+                 a block or a property then it is probably being created to get returned from
+                 the functions and therefore only has a name in he scope of that function.
+                 It might be possible to change the mapping to the parent function, but we
+                 can't understand that right now and there might me multiple functions within
+                 this one specific function.
                  */
-                if (getFunctionName(n) != null) {
-                    //if ("_path2string".equals(getFunctionName(n))) {
-                    //    return false;
-                    //}
-                    /*
-                     If this function has a direct parent which is another function instead of
-                     a block or a property then it is probably being created to get returned from
-                     the functions and therefore only has a name in he scope of that function.
-                     It might be possible to change the mapping to the parent function, but we
-                     can't understand that right now and there might me multiple functions within
-                     this one specific function.
-                     */
-                    if (!(n.getParent().getType() == Token.BLOCK && n.getParent().getParent().getType() == Token.FUNCTION)) {
-                        return true;
-                    }
+                if (!(n.getParent().getType() == Token.BLOCK && n.getParent().getParent().getType() == Token.FUNCTION)) {
+                    return true;
                 }
             }
         }
