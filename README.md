@@ -60,7 +60,7 @@ java JSlimRunner [options...] arguments...
 
 This repository includes a number of sample application you can use to try JSlim with.  The easiest place to start is with a simple JQuery/underscore.js.  You can slim it like this:
 
-<pre><code>  build/install/jslim/bin/jslim --js_output_file out.js --js main.js --lib_js libs/jquery-1.6.2.js --lib_js libs/underscore.js
+<pre><code>build/install/jslim/bin/jslim --js_output_file out.js --js main.js --lib_js libs/jquery-1.6.2.js --lib_js libs/underscore.js
 </code></pre>
         
 Once that command is done you can open the index.html file in your favorite browser and see this output:
