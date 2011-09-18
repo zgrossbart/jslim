@@ -208,10 +208,11 @@ public class JSlimRunner
                 "provide good error messages if the input files are invalid JavaScript.")
     private boolean m_preparse = true;
     
-    @Option(name = "--combine_files",
+    @Option(name = "--separate_files",
         handler = BooleanOptionHandler.class,
-        usage = "Pass this argument to combine the library files and the regular files into a single output file.")
-    private boolean m_combine = true;
+        usage = "Pass this argument to separate library files and the regular files into different output files.  " + 
+            "By default they are combined into a single file.")
+    private boolean m_separate = false;
     
     @Option(name = "--flagfile",
         usage = "A file containing additional command-line options.")
@@ -336,7 +337,7 @@ public class JSlimRunner
          */
         String result = slim.prune();
         
-        if (m_combine) {
+        if (!m_separate) {
             /*
              If they want to combine the main files and the library files
              then we just append them to the results here before the compile step.
@@ -410,7 +411,7 @@ public class JSlimRunner
                 }
             }
             
-            if (m_combine && !isLib) {
+            if (!m_separate && !isLib) {
                 m_mainFiles.append(contents + "\n");
             }
             
