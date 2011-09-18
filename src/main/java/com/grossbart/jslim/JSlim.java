@@ -416,8 +416,8 @@ public class JSlim
              likely getting called without a direct function reference
              so we have to leave it there.
              */
-            //if (!(n.getParent().getParent().getType() == Token.OBJECTLIT &&
-            //      n.getParent().getParent().getParent().getType() == Token.CALL)) {
+            if (!(n.getParent().getParent().getType() == Token.OBJECTLIT &&
+                  n.getParent().getParent().getParent().getType() == Token.CALL)) {
                 
                 /*
                  If the function doesn't have a name we can identify then it is anonymous and
@@ -439,7 +439,7 @@ public class JSlim
                         return true;
                     }
                 }
-            //}
+            }
         }
         
         return false;
