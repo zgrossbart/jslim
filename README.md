@@ -71,7 +71,7 @@ Miaow my name is Fluffy
 Miaow my name is Mouse
 </code></pre>
 
-This process will remove 157 out of 237 named functions (66 percent) and reduce the total size of the library files by 28 percent.
+This process will remove 157 out of 397 named functions (39.5 percent) and reduce the total size of the library files by 28 percent.
 
 How JSlim works
 --------------------------------------
