@@ -393,7 +393,7 @@ public class JSlim
              Then this is a function getting returned from another
              function and that makes it really difficult to determine
              if the function is being called because it is never
-             called directly by named
+             called directly by name
              */
             return false;
         }
@@ -432,7 +432,7 @@ public class JSlim
                      a block or a property then it is probably being created to get returned from
                      the functions and therefore only has a name in he scope of that function.
                      It might be possible to change the mapping to the parent function, but we
-                     can understand that right now and there might me multiple functions within
+                     can't understand that right now and there might me multiple functions within
                      this one specific function.
                      */
                     if (!(n.getParent().getType() == Token.BLOCK && n.getParent().getParent().getType() == Token.FUNCTION)) {
