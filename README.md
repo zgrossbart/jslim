@@ -21,9 +21,6 @@ java JSlimRunner [options...] arguments...
  --charset VAL                          : Input and output charset for all files
                                           . By default, we accept UTF-8 as input
                                            and output US_ASCII
- --combine_files                        : Pass this argument to combine the libr
-                                          ary files and the regular files into a
-                                           single output file.
  --compilation_level [WHITESPACE_ONLY | : Specifies the compilation level to use
   SIMPLE_OPTIMIZATIONS | ADVANCED_OPTIM : . Options: WHITESPACE_ONLY, SIMPLE_OPT
  IZATIONS | NONE]                       : IMIZATIONS, ADVANCED_OPTIMIZATIONS
@@ -53,6 +50,10 @@ java JSlimRunner [options...] arguments...
                                           ges if the input files are invalid Jav
                                           aScript.
  --print_tree                           : Prints out the parse tree and exits
+ --separate_files                       : Pass this argument to separate library
+                                           files and the regular files into diff
+                                          erent output files.  By default they a
+                                          re combined into a single file.
  --skip_gzip                            : Skip GZIPing the results
 
 </code></pre>
