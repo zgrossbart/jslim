@@ -60,7 +60,7 @@ java JSlimRunner [options...] arguments...
 
 This repository includes a number of sample application you can use to try JSlim with.  The easiest place to start is with a simple JQuery/underscore.js.  You can slim it like this:
 
-<pre><code>build/install/jslim/bin/jslim --js_output_file out.js --js main.js --lib_js libs/jquery-1.6.2.js --lib_js libs/underscore.js
+<pre><code>build/install/jslim/bin/jslim --js_output_file out.js --js main.js --lib_js libs/jquery-1.6.4.js --lib_js libs/underscore.js
 </code></pre>
         
 Once that command is done you can open the index.html file in your favorite browser and see this output:
@@ -71,7 +71,7 @@ Miaow my name is Fluffy
 Miaow my name is Mouse
 </code></pre>
 
-This process will remove 157 out of 397 named functions (39.5 percent) and reduce the total size of the library files by 28 percent.
+This process will remove 160 out of 397 named functions (39.5 percent) and reduce the total size of the library files by 28 percent.
 
 How JSlim works
 --------------------------------------
