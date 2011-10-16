@@ -12,7 +12,7 @@ checkstyleConfigFileName = 'checkstyle_checks.xml'
  * Now we define our application
  */
 group = 'JSlim'
-version = '0.1'
+version = '0.2-SNAPSHOT'
 
 repositories {
     mavenCentral()
