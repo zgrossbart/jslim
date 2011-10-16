@@ -1,11 +1,10 @@
-﻿JSlim - It's your favorite JavaScript library, only faster
-==================================================
-
-![JSlim Overview](/zgrossbart/jslim/raw/master/jslim.png)
+﻿![JSlim Overview](/zgrossbart/jslim/raw/master/jslim.png)
 
 JSlim is a JavaScript optimizer based on the [Google Closure Compiler](http://code.google.com/closure/compiler/), but instead of optimizing your code it removes unused code.
 
 Most websites use JavaScript libraries like [JQuery](http://jquery.com/) or [Prototype](http://www.prototypejs.org/), but they don't use the whole library.  JSlim builds you a new version of your favorite JavaScript library with only the code you're using.
+
+JSlim is your favorite JavaScript library, only faster
 
 Building JSlim
 --------------------------------------
