@@ -12,7 +12,7 @@ checkstyleConfigFileName = 'checkstyle_checks.xml'
  * Now we define our application
  */
 group = 'JSlim'
-version = '0.1-SNAPSHOT'
+version = '0.1'
 
 repositories {
     mavenCentral()
@@ -22,7 +22,6 @@ repositories {
  * We specify our dependencies
  */
 dependencies {
-  //compile files('../../tmp/closure-compiler/build/compiler.jar')
   compile group: 'com.google.javascript', name: 'closure-compiler', version: 'r1459'
   compile group: 'args4j', name: 'args4j', version: '2.0.12'
   compile group: 'commons-io', name: 'commons-io', version: '2.0.1'
