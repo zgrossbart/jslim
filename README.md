@@ -61,8 +61,8 @@ java JSlimRunner [options...] arguments...
 
 This repository includes a number of sample application you can use to try JSlim with.  The easiest place to start is with a simple JQuery/underscore.js.  You can slim it like this:
 
-<pre><code>
-gradle clean build
+<pre><code>gradle clean build
+
 build/install/jslim/bin/jslim --js_output_file out.js --js main.js --lib_js libs/jquery-1.6.4.js --lib_js libs/underscore.js
 </code></pre>
         
