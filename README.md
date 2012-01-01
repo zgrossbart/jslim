@@ -66,7 +66,7 @@ This repository includes a number of sample application you can use to try JSlim
 build/install/jslim/bin/jslim --js_output_file out.js --js main.js --lib_js libs/jquery-1.6.4.js --lib_js libs/underscore.js
 </code></pre>
         
-Once that command is done you can open the index.html file in your favorite browser and see this output:
+Once that command is done you can open the index.html file in your favorite browser and watch it run just the parts of JQuery and Underscore the page really needs.  The page looks like this:
 
 <pre><code>2,4,6,8
 Miaow my name is Charlie
