@@ -152,6 +152,15 @@ JSlim is best with a simple JQuery/underscore.js application where it reduces th
 
 Most JavaScript compressors make your code smaller by removing whitespace and comments and inlining functions.  JSlim actually removes code which reduces [computational complexity](http://en.wikipedia.org/wiki/Computational_complexity_theory).  The means your libraries aren't just smaller, but they actually run faster.
 
+Is JSlim different from Closure [Advanced Compilation] (https://developers.google.com/closure/compiler/docs/api-tutorial3)
+--------------------------------------
+
+The Google Closure Compiler supports an [ADVANCED_OPTIMIZATIONS] (https://developers.google.com/closure/compiler/docs/api-tutorial3) advanced compilation mode which handles dead code removal as well as other features.  
+
+JSlim focuses on removing dead code from third-party libraries which aren't compatible with ADVANCED_OPTIMIZATIONS.  It also dependencies dynamically instead of requiring an externs file.  
+
+JSlim and ADVANCED_OPTIMIZATIONS work well together.
+
 How stable is JSlim?
 --------------------------------------
 
