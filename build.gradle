@@ -2,11 +2,10 @@ defaultTasks 'build', 'distZip2'
 
 apply plugin: 'java'
 apply plugin: 'application'
-apply plugin: 'code-quality'
+apply plugin: 'checkstyle'
 
 mainClassName = 'com.grossbart.jslim.JSlimRunner'
 applicationName = 'jslim'
-checkstyleConfigFileName = 'checkstyle_checks.xml'
 
 /*
  * Now we define our application
