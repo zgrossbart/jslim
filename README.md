@@ -9,7 +9,7 @@ JSlim is your favorite JavaScript library, only faster
 Building JSlim
 --------------------------------------
 
-This project builds with [Gradle](http://www.gradle.org).  Build the application by running gradle in the project root directory.
+This project builds with [Gradle](http://www.gradle.org).  Make sure to download milestone 8 or later.  Build the application by running gradle in the project root directory.
 
 This project builds and runs on Windows, Mac, and Linux.
 
