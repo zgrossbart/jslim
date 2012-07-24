@@ -5,7 +5,7 @@ Running this sample
 
 Once you have built JSlim you can compile this example by running the following command from the root of the JSlim project tree:
 
-<pre><code>build/install/jslim/bin/jslim --js_output_file jquery_selector_sample/out.js --js jquery_selector_sample/main.js --lib_js libs/jquery-1.7.2.js --externs jquery_selector_sample/externs.txt</code></pre>
+<pre><code>build/install/jslim/bin/jslim --js_output_file extern_sample/out.js --js extern_sample/main.js --lib_js libs/jquery-1.7.2.js --externs extern_sample/externs.txt</code></pre>
 
 Then open the index.html file in your favorite browser.
 
