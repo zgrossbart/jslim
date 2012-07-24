@@ -1,6 +1,3 @@
 find
-NAME
 TAG
-ID
-CHILD
 odd
