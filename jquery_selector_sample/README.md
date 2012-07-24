@@ -1,4 +1,4 @@
-This sample shows how to use JSlim with a jQuery pseudo selector.  
+This sample shows you how to specify the correct externs file to use JSlim with a jQuery pseudo selector.  
 
 Running this sample
 --------------------------------------
@@ -18,7 +18,9 @@ JSlim has many samples using jQuery, but this one is special because of the use 
     $("p:odd").removeClass("blue").removeClass("under"); 
 });</code></pre>
 
-This code works by calling the `odd` function from jQuery, but it doesn't directly reference it.  The Sizzle library calls the `odd` function dynamically by parsing the selector string and JSlim can't follow that code path.  You need to specify to JSlim that you want to keep the `odd` function.
+This code works by calling the `odd` function from jQuery, but it doesn't directly reference it.  The Sizzle library calls the `odd` function dynamically by parsing the selector string.  JSlim can't follow that dynamic reference so it thinks that the `odd` function isn't getting called and removes it.  
+
+You need to specify an externs file for JSlim so it knows to keep the `odd` function.
 
 Extern files
 --------------------------------------
