@@ -31,4 +31,6 @@ JSlim follows a similar convention to the Google Closure Compiler with an extern
 TAG
 odd</code></pre>
 
-This preserves the odd function and the functions that support it and makes the sample work properly.
+This externs file tells JSlim to preserve the `find`, `TAG`, and `odd` functions.  It's important that we get the function names and the case correct since the file is case sensitive.  
+
+Specifying these externs causes JSlim to preserve the specified functions and all functions they depend on.
