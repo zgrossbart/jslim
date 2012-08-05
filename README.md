@@ -66,7 +66,7 @@ This repository includes a number of sample application you can use to try JSlim
 build/install/jslim/bin/jslim --js_output_file out.js --js main.js --lib_js libs/jquery-1.7.2.js --lib_js libs/underscore.js
 </code></pre>
         
-Once that command is done you can open the index.html file in your favorite browser and watch it run just the parts of JQuery and Underscore the page really needs.  The page looks like this:
+Once that command is done you can open the index.html file in your favorite browser and watch it run just the parts of JQuery and Underscore the page really needs.  The page shows one of the basic underscore.js examples and looks like this:
 
 <pre><code>2,4,6,8
 Miaow my name is Charlie
@@ -74,7 +74,7 @@ Miaow my name is Fluffy
 Miaow my name is Mouse
 </code></pre>
 
-This process will remove 160 out of 397 named functions (39.5 percent) and reduce the total size of the library files by 28 percent.
+This process will remove 163 out of 410 named functions (39.7 percent) and reduce the total size of the library files by 28 percent.
 
 How JSlim works
 --------------------------------------
