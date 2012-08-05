@@ -63,7 +63,7 @@ This repository includes a number of sample application you can use to try JSlim
 
 <pre><code>gradle
 
-build/install/jslim/bin/jslim --js_output_file out.js --js main.js --lib_js libs/jquery-1.6.4.js --lib_js libs/underscore.js
+build/install/jslim/bin/jslim --js_output_file out.js --js main.js --lib_js libs/jquery-1.7.2.js --lib_js libs/underscore.js
 </code></pre>
         
 Once that command is done you can open the index.html file in your favorite browser and watch it run just the parts of JQuery and Underscore the page really needs.  The page looks like this:
