@@ -1,4 +1,4 @@
-﻿![JSlim Overview](/zgrossbart/jslim/master/jslim.png)
+﻿![JSlim Overview](https://raw.github.com/zgrossbart/jslim/master/jslim.png)
 
 JSlim is a JavaScript optimizer based on the [Google Closure Compiler](http://code.google.com/closure/compiler/), but instead of optimizing your code it removes unused code.  Some people call this type of application a tree shaker because it shakes unused code out of your tree.
 
