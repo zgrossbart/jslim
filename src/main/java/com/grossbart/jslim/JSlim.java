@@ -1023,7 +1023,7 @@ public class JSlim
                 if (c != null) {
                     names.add(c);
                 }
-            } else {
+            } else if (n.getFirstChild().getLastChild() != null) {
                 names.add(n.getFirstChild().getLastChild().getString());
             }
         }
