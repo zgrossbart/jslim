@@ -51,7 +51,7 @@ public class JSlim
     /** 
      * Set of options that can be used with the --formatting flag. 
      */
-    public static enum FormattingOption
+    public enum FormattingOption
     {
         /** 
          * The options for pretty printing 
