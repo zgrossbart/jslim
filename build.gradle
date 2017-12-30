@@ -40,7 +40,7 @@ jar {
  * it adds our license and README file to the root of the distribution
  * zip file.
  */
-task distZip2(dependsOn: installApp, type: Zip) {
+task distZip2(dependsOn: installDist, type: Zip) {
     from(jar.outputs.files) {
         into('lib')
     }
